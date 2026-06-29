@@ -119,15 +119,23 @@
     <!-- PIPELINE FUNNEL -->
     <section id="funnel" class="section section--funnel" aria-labelledby="funnel-heading">
       <h2 id="funnel-heading" class="section__heading">Where Women Drop Off</h2>
-      <figure class="funnel__chart" role="img" aria-label="Leadership pipeline funnel chart">
-        <!-- D3 funnel chart -->
-      </figure>
+      <p class="section__subtitle">Women's representation at each career level — select an industry to compare.</p>
+      <div class="funnel__controls" role="group" aria-label="Select industry for funnel chart">
+        <!-- Industry buttons injected by interactions.js -->
+      </div>
+      <div class="funnel__wrapper">
+        <figure class="funnel__chart" aria-label="Leadership pipeline funnel chart">
+          <!-- D3 funnel chart -->
+        </figure>
+        <p class="funnel__callout" aria-live="polite"></p>
+      </div>
     </section>
 
     <!-- PAY VS GROWTH SCATTER -->
     <section id="scatter" class="section section--scatter" aria-labelledby="scatter-heading">
       <h2 id="scatter-heading" class="section__heading">Does High Pay Mean High Growth?</h2>
-      <figure class="scatter__chart" role="img" aria-label="Pay versus career growth scatter plot">
+      <p class="section__subtitle">Spoiler: not always. Industries that pay well don't necessarily promote well.</p>
+      <figure class="scatter__chart" aria-label="Pay versus career growth scatter plot">
         <!-- D3 scatter plot -->
       </figure>
     </section>
@@ -138,6 +146,10 @@
       <p class="section__subtitle">The "average" has been hiding this.</p>
       <div class="race-filter__controls" role="group" aria-label="Filter by race and ethnicity">
         <!-- Filter buttons injected by interactions.js -->
+      </div>
+      <p class="race-filter__callout" aria-live="polite"></p>
+      <div class="race-filter__grid">
+        <!-- Filtered scorecard re-rendered here -->
       </div>
     </section>
 
