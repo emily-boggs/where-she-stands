@@ -103,20 +103,6 @@ img, svg { display: block; max-width: 100%; }
   background-size: 60px 60px;
 }
 
-/* Art Deco square frame */
-.hero__frame {
-  position: absolute;
-  inset: 24px;
-  pointer-events: none;
-  color: var(--color-primary);
-}
-
-.hero__frame-svg {
-  width: 100%;
-  height: 100%;
-  opacity: 0.7;
-}
-
 .hero__content {
   display: flex;
   flex-direction: column;
@@ -910,10 +896,6 @@ img, svg { display: block; max-width: 100%; }
     order: -1;
   }
 
-  .hero__frame {
-    inset: 12px;
-  }
-
   .find__border {
     padding: var(--space-md);
   }
@@ -928,5 +910,91 @@ img, svg { display: block; max-width: 100%; }
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================
+   Decorative Border Frame (Stock SVG)
+   Two-stage draw-in: edges first, then corners
+   ========================================= */
+
+@property --draw-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border-frame {
+  position: fixed;
+  inset: 12px;
+  z-index: 1000;
+  pointer-events: none;
+  border-image-source: url('AdobeStock_2048526027.svg');
+  border-image-slice: 120 fill;
+  border-image-width: 80px;
+  border-image-repeat: stretch;
+  border-style: solid;
+  border-width: 80px;
+  opacity: 0.6;
+  filter: hue-rotate(240deg) saturate(0.6) brightness(1.4);
+  transition: opacity 0.4s ease;
+}
+
+/* Stage 1: Outer lines draw in (cross shape, corners excluded) */
+.border-frame--edges {
+  clip-path: polygon(
+    80px 0%, calc(100% - 80px) 0%,
+    calc(100% - 80px) 80px, 100% 80px,
+    100% calc(100% - 80px), calc(100% - 80px) calc(100% - 80px),
+    calc(100% - 80px) 100%, 80px 100%,
+    80px calc(100% - 80px), 0% calc(100% - 80px),
+    0% 80px, 80px 80px
+  );
+  -webkit-mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--draw-angle), transparent 0);
+  mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--draw-angle), transparent 0);
+  animation: drawBorderIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes drawBorderIn {
+  from { --draw-angle: 0deg; }
+  to { --draw-angle: 360deg; }
+}
+
+/* Stage 2: Corner details bloom in after edges finish */
+.border-frame--corners {
+  -webkit-mask-image:
+    linear-gradient(black, black),
+    linear-gradient(black, black),
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  -webkit-mask-size: 80px 80px;
+  -webkit-mask-position: 0 0, 100% 0, 0 100%, 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image:
+    linear-gradient(black, black),
+    linear-gradient(black, black),
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  mask-size: 80px 80px;
+  mask-position: 0 0, 100% 0, 0 100%, 100% 100%;
+  mask-repeat: no-repeat;
+  opacity: 0;
+  animation: cornersFadeIn 0.8s ease-out 1.6s forwards;
+}
+
+@keyframes cornersFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 0.6; transform: scale(1); }
+}
+
+.border-frame--hidden {
+  opacity: 0;
+}
+
+@media (max-width: 600px) {
+  .border-frame {
+    inset: 6px;
+    border-image-width: 40px;
+    border-width: 40px;
   }
 }

@@ -19,6 +19,24 @@ function initScrollObserver() {
 }
 
 /* =========================================
+   Border Frame — fade out on scroll
+   ========================================= */
+
+function initBorderFrameFade() {
+  const frames = document.querySelectorAll('.border-frame');
+  if (!frames.length) return;
+  window.addEventListener('scroll', () => {
+    frames.forEach((frame) => {
+      if (window.scrollY > 80) {
+        frame.classList.add('border-frame--hidden');
+      } else {
+        frame.classList.remove('border-frame--hidden');
+      }
+    });
+  }, { passive: true });
+}
+
+/* =========================================
    Hero Count-Up
    ========================================= */
 
@@ -525,6 +543,7 @@ function copyResult() {
 
 function init() {
   initScrollObserver();
+  initBorderFrameFade();
   initHeroStat();
   renderScorecard();
   initFunnel();

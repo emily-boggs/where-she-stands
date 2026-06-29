@@ -26,42 +26,6 @@
       <!-- Art Deco pattern background -->
       <div class="hero__pattern" aria-hidden="true"></div>
 
-      <!-- Art Deco square frame -->
-      <div class="hero__frame" aria-hidden="true">
-        <svg class="hero__frame-svg" viewBox="0 0 1000 600" preserveAspectRatio="none">
-          <!-- Outer rectangle -->
-          <rect x="20" y="20" width="960" height="560" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <!-- Inner rectangle -->
-          <rect x="40" y="40" width="920" height="520" fill="none" stroke="currentColor" stroke-width="0.5"/>
-          <!-- Corner ornaments - top left -->
-          <polygon points="20,20 60,20 20,60" fill="none" stroke="currentColor" stroke-width="1"/>
-          <circle cx="50" cy="50" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <!-- Corner ornaments - top right -->
-          <polygon points="980,20 940,20 980,60" fill="none" stroke="currentColor" stroke-width="1"/>
-          <circle cx="950" cy="50" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <!-- Corner ornaments - bottom left -->
-          <polygon points="20,580 60,580 20,540" fill="none" stroke="currentColor" stroke-width="1"/>
-          <circle cx="50" cy="550" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <!-- Corner ornaments - bottom right -->
-          <polygon points="980,580 940,580 980,540" fill="none" stroke="currentColor" stroke-width="1"/>
-          <circle cx="950" cy="550" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <!-- Top center diamond -->
-          <polygon points="500,10 515,25 500,40 485,25" fill="none" stroke="currentColor" stroke-width="1"/>
-          <!-- Bottom center diamond -->
-          <polygon points="500,560 515,575 500,590 485,575" fill="none" stroke="currentColor" stroke-width="1"/>
-          <!-- Side diamonds - left -->
-          <polygon points="10,300 25,285 40,300 25,315" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <!-- Side diamonds - right -->
-          <polygon points="990,300 975,285 960,300 975,315" fill="none" stroke="currentColor" stroke-width="0.8"/>
-          <!-- Top deco lines between corners -->
-          <line x1="80" y1="30" x2="470" y2="30" stroke="currentColor" stroke-width="0.5"/>
-          <line x1="530" y1="30" x2="920" y2="30" stroke="currentColor" stroke-width="0.5"/>
-          <!-- Bottom deco lines between corners -->
-          <line x1="80" y1="570" x2="470" y2="570" stroke="currentColor" stroke-width="0.5"/>
-          <line x1="530" y1="570" x2="920" y2="570" stroke="currentColor" stroke-width="0.5"/>
-        </svg>
-      </div>
-
       <div class="hero__content">
         <p class="hero__eyebrow">An Interactive Data Story</p>
         <h1 id="hook-heading" class="hero__title">
@@ -211,6 +175,10 @@
   <footer class="site-footer" role="contentinfo">
     <p class="site-footer__note">Data is illustrative, not sourced from live datasets. Built to tell the story the averages hide.</p>
   </footer>
+
+  <!-- Decorative border frame (two-stage draw-in) -->
+  <div class="border-frame border-frame--edges" aria-hidden="true"></div>
+  <div class="border-frame border-frame--corners" aria-hidden="true"></div>
 
   <script src="data.js"></script>
   <script src="interactions.js"></script>
