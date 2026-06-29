@@ -158,12 +158,89 @@ function initScrollObserver() {
 }
 
 /* =========================================
+   Personalizer (E3)
+   ========================================= */
+
+const dimensionIcons = {
+  pay: '💰',
+  leadership: '📈',
+  leave: '👶',
+  growth: '🚀'
+};
+
+function initPersonalizer() {
+  const container = document.querySelector('.personalizer__options');
+  if (!container) return;
+
+  DATA.dimensions.forEach((dim) => {
+    const btn = createToggleButton({
+      label: DATA.dimensionLabels[dim],
+      value: dim,
+      icon: dimensionIcons[dim],
+      isActive: false,
+      onClick: handlePersonalizerToggle
+    });
+    container.appendChild(btn);
+  });
+}
+
+function handlePersonalizerToggle(value, btn) {
+  const weights = appState.activeWeights;
+  const idx = weights.indexOf(value);
+
+  if (idx > -1) {
+    weights.splice(idx, 1);
+    btn.classList.remove('toggle-btn--active');
+    btn.setAttribute('aria-pressed', 'false');
+  } else {
+    weights.push(value);
+    btn.classList.add('toggle-btn--active');
+    btn.setAttribute('aria-pressed', 'true');
+  }
+
+  setState('activeWeights', [...weights]);
+  renderScorecard();
+}
+
+/* =========================================
+   Scorecard Grid (E4)
+   ========================================= */
+
+function initScorecard() {
+  renderScorecard();
+}
+
+function renderScorecard() {
+  const container = document.querySelector('.scorecard__grid');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const sorted = [...DATA.industries].sort((a, b) => {
+    if (appState.activeSortDimension === 'total') {
+      return computeWeightedScore(b.scores, appState.activeWeights) -
+             computeWeightedScore(a.scores, appState.activeWeights);
+    }
+    return (b.scores[appState.activeSortDimension] || 0) -
+           (a.scores[appState.activeSortDimension] || 0);
+  });
+
+  sorted.forEach((industry, i) => {
+    const card = createScorecardCard(industry, appState.activeWeights);
+    if (i === 0) card.classList.add('scorecard__card--top');
+    container.appendChild(card);
+  });
+}
+
+/* =========================================
    Init
    ========================================= */
 
 function init() {
   initScrollObserver();
   initHookCountUp();
+  initPersonalizer();
+  initScorecard();
 }
 
 document.addEventListener('DOMContentLoaded', init);

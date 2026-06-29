@@ -280,6 +280,19 @@ img, svg {
 /* ----- Scorecard Section ----- */
 .scorecard__grid {
   margin-top: var(--space-md);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--space-md);
+}
+
+.scorecard__card--top {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 1px var(--color-gold);
+}
+
+.scorecard__card--top .scorecard__card-title::after {
+  content: ' ★';
+  color: var(--color-gold);
 }
 
 /* ----- Funnel Section ----- */
