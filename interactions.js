@@ -145,16 +145,20 @@ function initHookCountUp() {
    ========================================= */
 
 function initScrollObserver() {
-  const sections = document.querySelectorAll('.section');
+  const sections = document.querySelectorAll('#story .section');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         entry.target.classList.add('section--visible');
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.05 });
 
   sections.forEach((section) => observer.observe(section));
+
+  // Make the first section visible immediately (it's scrolled into view)
+  const first = document.querySelector('#story .section');
+  if (first) first.classList.add('section--visible');
 }
 
 /* =========================================
@@ -290,23 +294,28 @@ function completeQuiz() {
 
   // Hide quiz, show story
   document.getElementById('quiz').hidden = true;
-  document.getElementById('story').hidden = false;
+  const story = document.getElementById('story');
+  story.hidden = false;
 
   // Render all sections
   renderProfileSummary();
   renderRecommendation();
   renderScorecard();
   initFunnel();
-  initScatter();
   renderRaceFilterGrid();
   initVignettes();
   renderActionLinks();
 
-  // Init scroll observer for story sections
-  initScrollObserver();
+  // D3 charts need the DOM to be visible and laid out
+  requestAnimationFrame(() => {
+    initScatter();
 
-  // Smooth scroll to results
-  document.getElementById('your-profile').scrollIntoView({ behavior: 'smooth' });
+    // Init scroll observer after story is visible
+    initScrollObserver();
+
+    // Smooth scroll to results
+    document.getElementById('your-profile').scrollIntoView({ behavior: 'smooth' });
+  });
 }
 
 /* =========================================
