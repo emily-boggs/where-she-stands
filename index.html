@@ -19,21 +19,48 @@
 </head>
 <body>
 
-  <header class="site-header" role="banner">
-    <nav class="site-header__nav" aria-label="Primary navigation">
-      <span class="site-header__logo">Where She Stands</span>
-    </nav>
-  </header>
-
   <main id="main-content">
 
     <!-- HERO -->
     <section id="hook" class="hero" aria-labelledby="hook-heading">
-      <svg class="hero__deco hero__deco--top" viewBox="0 0 1200 80" aria-hidden="true" preserveAspectRatio="none">
-        <line x1="0" y1="40" x2="1200" y2="40" stroke="currentColor" stroke-width="1"/>
-        <circle cx="600" cy="40" r="6" fill="none" stroke="currentColor" stroke-width="1"/>
-        <circle cx="600" cy="40" r="14" fill="none" stroke="currentColor" stroke-width="0.5"/>
-      </svg>
+      <!-- Art Deco pattern background -->
+      <div class="hero__pattern" aria-hidden="true"></div>
+
+      <!-- Art Deco square frame -->
+      <div class="hero__frame" aria-hidden="true">
+        <svg class="hero__frame-svg" viewBox="0 0 1000 600" preserveAspectRatio="none">
+          <!-- Outer rectangle -->
+          <rect x="20" y="20" width="960" height="560" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <!-- Inner rectangle -->
+          <rect x="40" y="40" width="920" height="520" fill="none" stroke="currentColor" stroke-width="0.5"/>
+          <!-- Corner ornaments - top left -->
+          <polygon points="20,20 60,20 20,60" fill="none" stroke="currentColor" stroke-width="1"/>
+          <circle cx="50" cy="50" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <!-- Corner ornaments - top right -->
+          <polygon points="980,20 940,20 980,60" fill="none" stroke="currentColor" stroke-width="1"/>
+          <circle cx="950" cy="50" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <!-- Corner ornaments - bottom left -->
+          <polygon points="20,580 60,580 20,540" fill="none" stroke="currentColor" stroke-width="1"/>
+          <circle cx="50" cy="550" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <!-- Corner ornaments - bottom right -->
+          <polygon points="980,580 940,580 980,540" fill="none" stroke="currentColor" stroke-width="1"/>
+          <circle cx="950" cy="550" r="6" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <!-- Top center diamond -->
+          <polygon points="500,10 515,25 500,40 485,25" fill="none" stroke="currentColor" stroke-width="1"/>
+          <!-- Bottom center diamond -->
+          <polygon points="500,560 515,575 500,590 485,575" fill="none" stroke="currentColor" stroke-width="1"/>
+          <!-- Side diamonds - left -->
+          <polygon points="10,300 25,285 40,300 25,315" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <!-- Side diamonds - right -->
+          <polygon points="990,300 975,285 960,300 975,315" fill="none" stroke="currentColor" stroke-width="0.8"/>
+          <!-- Top deco lines between corners -->
+          <line x1="80" y1="30" x2="470" y2="30" stroke="currentColor" stroke-width="0.5"/>
+          <line x1="530" y1="30" x2="920" y2="30" stroke="currentColor" stroke-width="0.5"/>
+          <!-- Bottom deco lines between corners -->
+          <line x1="80" y1="570" x2="470" y2="570" stroke="currentColor" stroke-width="0.5"/>
+          <line x1="530" y1="570" x2="920" y2="570" stroke="currentColor" stroke-width="0.5"/>
+        </svg>
+      </div>
 
       <div class="hero__content">
         <p class="hero__eyebrow">An Interactive Data Story</p>
@@ -47,12 +74,6 @@
         </p>
         <p class="hero__subhook">Scroll to see the data. Then decide where you stand.</p>
       </div>
-
-      <svg class="hero__deco hero__deco--bottom" viewBox="0 0 1200 80" aria-hidden="true" preserveAspectRatio="none">
-        <line x1="0" y1="40" x2="1200" y2="40" stroke="currentColor" stroke-width="1"/>
-        <circle cx="600" cy="40" r="6" fill="none" stroke="currentColor" stroke-width="1"/>
-        <circle cx="600" cy="40" r="14" fill="none" stroke="currentColor" stroke-width="0.5"/>
-      </svg>
 
       <div class="hero__scroll" aria-hidden="true">
         <span class="hero__scroll-text">Scroll to explore</span>
@@ -72,21 +93,62 @@
       <h2 id="funnel-heading" class="section__heading">Where Women Drop Off</h2>
       <p class="section__subtitle">Representation at each level of the career ladder. Select an industry.</p>
       <div class="funnel__controls" id="funnel-controls"></div>
-      <figure class="funnel__chart" id="funnel-chart" aria-label="Leadership pipeline chart"></figure>
-      <p class="funnel__callout" id="funnel-callout"></p>
+      <div class="funnel__layout">
+        <figure class="funnel__chart" id="funnel-chart" aria-label="Leadership pipeline chart"></figure>
+        <aside class="funnel__sidebar">
+          <div class="sidebar-card">
+            <h3 class="sidebar-card__title">What you're seeing</h3>
+            <p class="sidebar-card__text">Each bar shows the percentage of women at that career level. The bars shrink as you go up — that's the "leaky pipeline."</p>
+            <p class="sidebar-card__text">The <span style="color: var(--color-alert)">red bar</span> marks the steepest single drop — where the most women are lost between levels.</p>
+          </div>
+          <div class="sidebar-card sidebar-card--fact">
+            <h3 class="sidebar-card__title">Did you know?</h3>
+            <p class="sidebar-card__text">For every 100 men promoted to manager, only 87 women are promoted. For women of color, that number drops to 73.</p>
+          </div>
+          <p class="funnel__callout" id="funnel-callout"></p>
+        </aside>
+      </div>
     </section>
 
     <!-- PAY VS GROWTH SCATTER -->
     <section id="scatter" class="section" aria-labelledby="scatter-heading">
       <h2 id="scatter-heading" class="section__heading">Does High Pay Mean Fast Growth?</h2>
       <p class="section__subtitle">Not always. Some industries pay well but promote slowly — and vice versa.</p>
-      <figure class="scatter__chart" id="scatter-chart" aria-label="Pay versus growth scatter plot"></figure>
+      <div class="scatter__layout">
+        <figure class="scatter__chart" id="scatter-chart" aria-label="Pay versus growth scatter plot"></figure>
+        <aside class="scatter__sidebar">
+          <div class="sidebar-card">
+            <h3 class="sidebar-card__title">How to read this</h3>
+            <p class="sidebar-card__text"><strong>X-axis (horizontal):</strong> How much women earn per dollar men earn. Further right = more equitable pay.</p>
+            <p class="sidebar-card__text"><strong>Y-axis (vertical):</strong> Years to first promotion. Lower on the chart = faster advancement.</p>
+            <p class="sidebar-card__text">The ideal is <strong>bottom-right</strong>: high pay and fast growth. No industry is there yet.</p>
+          </div>
+          <div class="sidebar-card sidebar-card--fact">
+            <h3 class="sidebar-card__title">The trade-off</h3>
+            <p class="sidebar-card__text">Public Sector pays the most fairly ($0.92) but promotes the slowest (8.5 yrs). Tech promotes fast but pays women 17 cents less per dollar.</p>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <!-- RACE & ETHNICITY -->
     <section id="race" class="section" aria-labelledby="race-heading">
       <h2 id="race-heading" class="section__heading">The Real Story</h2>
       <p class="section__subtitle">The averages above hide a deeper inequity. Filter by identity to see the real gaps.</p>
+      <div class="race__summary" id="race-summary">
+        <div class="race__summary-stat">
+          <span class="race__summary-number">$0.58</span>
+          <span class="race__summary-label">What Hispanic women earn per $1 a white man earns in Manufacturing</span>
+        </div>
+        <div class="race__summary-stat">
+          <span class="race__summary-number">5%</span>
+          <span class="race__summary-label">Black women in C-suite roles in Financial Services</span>
+        </div>
+        <div class="race__summary-stat">
+          <span class="race__summary-number">12 yrs</span>
+          <span class="race__summary-label">Avg time to first promotion for Hispanic women in Manufacturing</span>
+        </div>
+      </div>
       <div class="race__controls" id="race-controls"></div>
       <p class="race__callout" id="race-callout"></p>
       <div class="race__grid" id="race-grid"></div>
@@ -110,6 +172,7 @@
 
     <!-- FIND WHERE YOU STAND (quiz at end) -->
     <section id="find" class="section section--find" aria-labelledby="find-heading">
+      <div class="find__border">
       <h2 id="find-heading" class="section__heading">Now — Find Where You Stand</h2>
       <p class="section__subtitle">You've seen the data. Tell us what matters to you.</p>
 
@@ -133,6 +196,7 @@
 
         <button class="find__submit" id="find-submit">Show My Results</button>
       </div>
+      </div><!-- /find__border -->
     </section>
 
     <!-- RESULTS (hidden until submit) -->

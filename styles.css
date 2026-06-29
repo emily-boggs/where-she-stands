@@ -76,27 +76,7 @@ img, svg { display: block; max-width: 100%; }
 
 .section--visible { opacity: 1; transform: none; }
 
-/* ---- Header ---- */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--color-bg);
-  border-bottom: 1px solid var(--color-surface-alt);
-  padding: var(--space-sm) var(--space-md);
-}
-
-.site-header__nav {
-  max-width: var(--max-width);
-  margin: 0 auto;
-}
-
-.site-header__logo {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: var(--color-primary);
-}
+/* ---- Header (removed) ---- */
 
 /* =========================================
    Hero
@@ -104,26 +84,38 @@ img, svg { display: block; max-width: 100%; }
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: var(--space-lg) var(--space-md);
+  overflow: hidden;
 }
 
-.hero__deco {
+/* Subtle Art Deco repeating background pattern */
+.hero__pattern {
   position: absolute;
-  left: 0;
-  width: 100%;
-  height: 50px;
-  color: var(--color-secondary);
-  opacity: 0.4;
+  inset: 0;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9B8E8' stroke-width='0.5'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 60px;
 }
 
-.hero__deco--top { top: 0; }
-.hero__deco--bottom { bottom: 80px; }
+/* Art Deco square frame */
+.hero__frame {
+  position: absolute;
+  inset: 24px;
+  pointer-events: none;
+  color: var(--color-primary);
+}
+
+.hero__frame-svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+}
 
 .hero__content {
   display: flex;
@@ -207,6 +199,72 @@ img, svg { display: block; max-width: 100%; }
   50% { transform: translateX(-50%) translateY(6px); }
 }
 
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to { background-position: 200% center; }
+}
+
+/* Stagger animation for cards */
+.section--visible .scorecard__card,
+.section--visible .sidebar-card,
+.section--visible .race-card,
+.section--visible .race__summary-stat,
+.section--visible .story-card {
+  animation: scaleIn 0.4s ease-out both;
+}
+
+.section--visible .scorecard__card:nth-child(1),
+.section--visible .race__summary-stat:nth-child(1) { animation-delay: 0s; }
+.section--visible .scorecard__card:nth-child(2),
+.section--visible .race__summary-stat:nth-child(2) { animation-delay: 0.08s; }
+.section--visible .scorecard__card:nth-child(3),
+.section--visible .race__summary-stat:nth-child(3) { animation-delay: 0.16s; }
+.section--visible .scorecard__card:nth-child(4) { animation-delay: 0.24s; }
+.section--visible .scorecard__card:nth-child(5) { animation-delay: 0.32s; }
+.section--visible .scorecard__card:nth-child(6) { animation-delay: 0.4s; }
+
+.section--visible .story-card:nth-child(1) { animation-delay: 0.1s; }
+.section--visible .story-card:nth-child(2) { animation-delay: 0.25s; }
+.section--visible .story-card:nth-child(3) { animation-delay: 0.4s; }
+
+.section--visible .sidebar-card {
+  animation: slideInRight 0.5s ease-out both;
+}
+.section--visible .sidebar-card:nth-child(2) { animation-delay: 0.15s; }
+
+.section--visible .funnel__sidebar .sidebar-card,
+.section--visible .scatter__sidebar .sidebar-card {
+  animation: slideInRight 0.5s ease-out both;
+}
+
+/* Hover interaction for scorecard cards */
+.scorecard__card {
+  opacity: 0;
+  transform: scale(0.9);
+  cursor: pointer;
+  transition: transform 0.4s ease, box-shadow 0.3s ease;
+}
+
+.scorecard__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(201, 184, 232, 0.12);
+}
+
 /* =========================================
    Scorecard
    ========================================= */
@@ -274,6 +332,13 @@ img, svg { display: block; max-width: 100%; }
   margin-bottom: var(--space-md);
 }
 
+.funnel__layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-md);
+  align-items: start;
+}
+
 .funnel__chart {
   margin: 0;
   min-height: 320px;
@@ -288,9 +353,52 @@ img, svg { display: block; max-width: 100%; }
   min-height: 1.5em;
 }
 
+/* Sidebar cards (shared between funnel & scatter) */
+.sidebar-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.sidebar-card--fact {
+  border-left: 3px solid var(--color-secondary);
+}
+
+.sidebar-card__title {
+  font-family: var(--font-condensed);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.sidebar-card__text {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-card__text:last-child { margin-bottom: 0; }
+
+.sidebar-card__text strong { color: var(--color-text); }
+
 /* =========================================
    Scatter
    ========================================= */
+
+.scatter__layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-md);
+  align-items: start;
+}
 
 .scatter__chart {
   margin: 0;
@@ -324,6 +432,40 @@ img, svg { display: block; max-width: 100%; }
   margin-bottom: var(--space-sm);
 }
 
+/* Race summary stats */
+.race__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: 4px;
+  background: var(--color-surface);
+}
+
+.race__summary-stat {
+  text-align: center;
+  padding: var(--space-sm);
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.race__summary-number {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-alert);
+  margin-bottom: 0.25rem;
+}
+
+.race__summary-label {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
 .race__callout {
   font-style: italic;
   color: var(--color-alert);
@@ -342,6 +484,8 @@ img, svg { display: block; max-width: 100%; }
   border: 1px solid var(--color-surface-alt);
   border-radius: 4px;
   padding: var(--space-sm) var(--space-md);
+  opacity: 0;
+  transform: scale(0.9);
 }
 
 .race-card__title {
@@ -388,6 +532,8 @@ img, svg { display: block; max-width: 100%; }
   padding: var(--space-md);
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s;
+  opacity: 0;
+  transform: scale(0.9);
 }
 
 .story-card:hover {
@@ -528,6 +674,24 @@ img, svg { display: block; max-width: 100%; }
 
 .section--find {
   border-top: 1px solid var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.section--find .section__subtitle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.find__border {
+  border: 2px solid var(--color-secondary);
+  border-radius: 8px;
+  padding: var(--space-lg) var(--space-xl);
+  max-width: 700px;
+  width: 100%;
+  background: var(--color-surface);
 }
 
 .find__form {
@@ -535,6 +699,8 @@ img, svg { display: block; max-width: 100%; }
   flex-direction: column;
   gap: var(--space-lg);
   max-width: 600px;
+  margin: 0 auto;
+  text-align: left;
 }
 
 .find__label {
@@ -570,7 +736,7 @@ img, svg { display: block; max-width: 100%; }
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
-  align-self: flex-start;
+  align-self: center;
 }
 
 .find__submit:hover {
@@ -728,6 +894,34 @@ img, svg { display: block; max-width: 100%; }
 /* =========================================
    A11y
    ========================================= */
+
+/* =========================================
+   Responsive
+   ========================================= */
+
+@media (max-width: 768px) {
+  .funnel__layout,
+  .scatter__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .funnel__sidebar,
+  .scatter__sidebar {
+    order: -1;
+  }
+
+  .hero__frame {
+    inset: 12px;
+  }
+
+  .find__border {
+    padding: var(--space-md);
+  }
+
+  .race__summary {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
