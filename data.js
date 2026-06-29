@@ -100,7 +100,7 @@ const DATA = {
       age: 34,
       situation: 'Leaving Finance for Public Sector after having a baby',
       priorities: ['leave', 'leadership'],
-      quote: 'I shouldn't have to choose between being a mom and being a leader.'
+      quote: "I shouldn't have to choose between being a mom and being a leader."
     },
     {
       name: 'Carmen',
