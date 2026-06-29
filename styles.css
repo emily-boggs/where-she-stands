@@ -194,9 +194,11 @@ img, svg {
   max-width: 600px;
 }
 
-.hero__hook strong {
+.hero__hook strong,
+.hero__hook-stat {
   color: var(--color-gold-light);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .hero__subhook {
@@ -315,6 +317,171 @@ img, svg {
 
 .recommendation__result {
   margin-top: var(--space-md);
+}
+
+/* =========================================
+   Reusable Component Shells (Task 1.5)
+   ========================================= */
+
+/* ----- Toggle Button ----- */
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--color-surface-alt);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-cream);
+  font-family: var(--font-condensed);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.toggle-btn:hover {
+  border-color: var(--color-gold);
+  color: var(--color-white);
+}
+
+.toggle-btn--active {
+  border-color: var(--color-gold);
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+.toggle-btn__icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* ----- Scorecard Card ----- */
+.scorecard__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: 6px;
+  padding: var(--space-md);
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.scorecard__card:hover {
+  border-color: var(--color-gold);
+}
+
+.scorecard__card-title {
+  font-family: var(--font-condensed);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-white);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.scorecard__card-score {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-gold);
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+
+.scorecard__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scorecard__bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 40px;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.scorecard__bar-label {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.scorecard__bar-track {
+  height: 8px;
+  background: var(--color-surface-alt);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scorecard__bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease-out;
+}
+
+.bar--good { background: var(--color-growth); }
+.bar--mid  { background: var(--color-gold); }
+.bar--low  { background: var(--color-leadership); }
+
+.scorecard__bar-value {
+  font-family: var(--font-condensed);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-cream);
+  text-align: right;
+}
+
+/* ----- Vignette Card ----- */
+.vignette__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: 6px;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.vignette__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+.vignette__situation {
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.vignette__quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.0625rem;
+  color: var(--color-cream);
+  border-left: 3px solid var(--color-gold);
+  padding-left: var(--space-sm);
+  margin: 0;
+}
+
+.vignette__priorities {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.vignette__tag {
+  font-family: var(--font-condensed);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-gold);
+  border-radius: 2px;
+  color: var(--color-gold);
 }
 
 /* ----- Footer ----- */
