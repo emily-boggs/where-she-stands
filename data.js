@@ -109,5 +109,43 @@ const DATA = {
       priorities: ['growth', 'leadership'],
       quote: 'I want to see someone who looks like me at the top before I commit.'
     }
-  ]
+  ],
+
+  careerStages: [
+    { id: 'early', label: 'Early Career', description: 'Just starting out or < 3 years' },
+    { id: 'mid', label: 'Mid-Career', description: '3–10 years of experience' },
+    { id: 'senior', label: 'Senior / Leadership', description: '10+ years, eyeing the top' },
+    { id: 'pivot', label: 'Career Pivot', description: 'Switching industries or roles' }
+  ],
+
+  /**
+   * Job board search URLs per industry
+   * Uses LinkedIn and Indeed with industry keywords
+   */
+  jobLinks: {
+    technology: {
+      linkedin: 'https://www.linkedin.com/jobs/search/?keywords=technology',
+      indeed: 'https://www.indeed.com/jobs?q=technology'
+    },
+    'financial-services': {
+      linkedin: 'https://www.linkedin.com/jobs/search/?keywords=financial%20services',
+      indeed: 'https://www.indeed.com/jobs?q=financial+services'
+    },
+    healthcare: {
+      linkedin: 'https://www.linkedin.com/jobs/search/?keywords=healthcare',
+      indeed: 'https://www.indeed.com/jobs?q=healthcare'
+    },
+    retail: {
+      linkedin: 'https://www.linkedin.com/jobs/search/?keywords=retail%20consumer%20goods',
+      indeed: 'https://www.indeed.com/jobs?q=retail+consumer+goods'
+    },
+    'public-sector': {
+      linkedin: 'https://www.linkedin.com/jobs/search/?keywords=government%20public%20sector',
+      indeed: 'https://www.usajobs.gov/'
+    },
+    manufacturing: {
+      linkedin: 'https://www.linkedin.com/jobs/search/?keywords=manufacturing',
+      indeed: 'https://www.indeed.com/jobs?q=manufacturing'
+    }
+  }
 };

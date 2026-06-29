@@ -208,28 +208,39 @@ img, svg {
   letter-spacing: 0.02em;
 }
 
+/* ----- Hero CTA Button ----- */
 .hero__scroll {
   position: absolute;
-  bottom: var(--space-md);
+  bottom: var(--space-lg);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-xs);
+}
+
+.hero__cta {
+  padding: 1rem 2.5rem;
+  border: 2px solid var(--color-gold);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-gold);
+  font-family: var(--font-condensed);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.25s, color 0.25s, transform 0.25s;
   animation: scrollBounce 2s ease-in-out infinite 2s;
 }
 
-.hero__scroll-text {
-  font-family: var(--font-condensed);
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-
-.hero__scroll-arrow {
-  color: var(--color-gold);
+.hero__cta:hover {
+  background: var(--color-gold);
+  color: var(--color-bg);
+  transform: translateY(-2px);
+  animation: none;
 }
 
 /* Hero Animations */
@@ -258,6 +269,182 @@ img, svg {
 @keyframes scrollBounce {
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* =========================================
+   Quiz Overlay
+   ========================================= */
+
+.quiz {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(8px);
+  padding: var(--space-md);
+}
+
+.quiz__panel {
+  width: 100%;
+  max-width: 600px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: 8px;
+  padding: var(--space-lg) var(--space-md);
+  position: relative;
+}
+
+.quiz__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-surface-alt);
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.quiz__progress-bar {
+  height: 100%;
+  background: var(--color-gold);
+  width: 33.3%;
+  transition: width 0.3s ease;
+}
+
+.quiz__question {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: var(--space-xs);
+}
+
+.quiz__hint {
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+  margin-bottom: var(--space-md);
+}
+
+.quiz__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.quiz__options .toggle-btn {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 1rem 1.25rem;
+}
+
+.toggle-btn__desc {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-muted);
+  margin-top: 0.125rem;
+}
+
+.toggle-btn--active .toggle-btn__desc {
+  color: var(--color-bg);
+  opacity: 0.7;
+}
+
+.quiz__nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-lg);
+}
+
+.quiz__btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-family: var(--font-condensed);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.quiz__btn--back {
+  background: transparent;
+  border: 1px solid var(--color-surface-alt);
+  color: var(--color-muted);
+}
+
+.quiz__btn--back:hover {
+  border-color: var(--color-cream);
+  color: var(--color-cream);
+}
+
+.quiz__btn--next {
+  background: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  color: var(--color-bg);
+  margin-left: auto;
+}
+
+.quiz__btn--next:hover {
+  background: var(--color-gold-light);
+}
+
+/* =========================================
+   Profile Summary
+   ========================================= */
+
+.profile__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.profile__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.profile__label {
+  font-family: var(--font-condensed);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  min-width: 120px;
+}
+
+.profile__value {
+  color: var(--color-cream);
+  font-size: 1rem;
+}
+
+.profile__tags {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.profile__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-gold);
+  border-radius: 3px;
+  color: var(--color-gold);
+  font-family: var(--font-condensed);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 /* ----- Personalizer Section ----- */
@@ -701,6 +888,67 @@ img, svg {
   border: 1px solid var(--color-gold);
   border-radius: 2px;
   color: var(--color-gold);
+}
+
+/* =========================================
+   Take Action Section
+   ========================================= */
+
+.section--action {
+  text-align: center;
+}
+
+.action__intro {
+  font-size: 1.0625rem;
+  color: var(--color-cream);
+  margin-bottom: var(--space-md);
+}
+
+.action__intro strong {
+  color: var(--color-gold);
+}
+
+.action__buttons {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.action__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  border-radius: 4px;
+  font-family: var(--font-condensed);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.action__link:hover {
+  transform: translateY(-2px);
+}
+
+.action__link--linkedin {
+  background: #0a66c2;
+  color: #fff;
+}
+
+.action__link--linkedin:hover {
+  background: #004182;
+}
+
+.action__link--indeed {
+  background: #2164f3;
+  color: #fff;
+}
+
+.action__link--indeed:hover {
+  background: #1a4fc2;
 }
 
 /* ----- Footer ----- */
