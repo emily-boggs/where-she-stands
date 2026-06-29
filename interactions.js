@@ -1,615 +1,254 @@
 /**
- * WHERE SHE STANDS — Interactions & State
- * Manages global app state, UI events, and scroll-triggered animations.
+ * WHERE SHE STANDS — Interactions
+ * Story-first: everything renders on load.
+ * Quiz at the end. Expandable persona stories.
  */
-
-const appState = {
-  activeFilter: 'all',
-  activeWeights: [],
-  activeSortDimension: 'total'
-};
-
-/**
- * Update state and notify listeners
- */
-function setState(key, value) {
-  appState[key] = value;
-  document.dispatchEvent(new CustomEvent('stateChange', { detail: { key, value } }));
-}
-
-/* =========================================
-   Reusable Component Shells (Task 1.5)
-   ========================================= */
-
-/**
- * Create a dimension toggle button (used by personalizer & filters)
- */
-function createToggleButton({ label, value, icon, isActive, onClick }) {
-  const btn = document.createElement('button');
-  btn.className = `toggle-btn${isActive ? ' toggle-btn--active' : ''}`;
-  btn.setAttribute('aria-pressed', isActive);
-  btn.dataset.value = value;
-  btn.innerHTML = `<span class="toggle-btn__icon">${icon}</span><span class="toggle-btn__label">${label}</span>`;
-  btn.addEventListener('click', () => onClick(value, btn));
-  return btn;
-}
-
-/**
- * Create an industry scorecard card
- */
-function createScorecardCard(industry, weights) {
-  const card = document.createElement('article');
-  card.className = 'scorecard__card';
-  card.dataset.industry = industry.id;
-
-  const totalScore = computeWeightedScore(industry.scores, weights);
-
-  let dimensionBars = '';
-  DATA.dimensions.forEach((dim) => {
-    const score = industry.scores[dim];
-    const colorClass = score >= 70 ? 'bar--good' : score >= 50 ? 'bar--mid' : 'bar--low';
-    dimensionBars += `
-      <div class="scorecard__bar-row">
-        <span class="scorecard__bar-label">${DATA.dimensionLabels[dim]}</span>
-        <div class="scorecard__bar-track">
-          <div class="scorecard__bar-fill ${colorClass}" style="width:${score}%" aria-valuenow="${score}" role="meter" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <span class="scorecard__bar-value">${score}</span>
-      </div>`;
-  });
-
-  card.innerHTML = `
-    <h3 class="scorecard__card-title">${industry.name}</h3>
-    <span class="scorecard__card-score">${totalScore}</span>
-    <div class="scorecard__bars">${dimensionBars}</div>`;
-  return card;
-}
-
-/**
- * Create a persona vignette card
- */
-function createVignetteCard(persona) {
-  const card = document.createElement('article');
-  card.className = 'vignette__card';
-  const priorityTags = persona.priorities
-    .map((p) => `<span class="vignette__tag">${DATA.dimensionLabels[p]}</span>`)
-    .join('');
-  card.innerHTML = `
-    <h3 class="vignette__name">${persona.name}, ${persona.age}</h3>
-    <p class="vignette__situation">${persona.situation}</p>
-    <blockquote class="vignette__quote">"${persona.quote}"</blockquote>
-    <div class="vignette__priorities">${priorityTags}</div>`;
-  return card;
-}
-
-/**
- * Compute a weighted overall score for an industry
- */
-function computeWeightedScore(scores, weights) {
-  if (!weights || weights.length === 0) {
-    const vals = Object.values(scores);
-    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
-  }
-  const weighted = weights.reduce((sum, dim) => sum + (scores[dim] || 0), 0);
-  const unweighted = DATA.dimensions
-    .filter((d) => !weights.includes(d))
-    .reduce((sum, d) => sum + (scores[d] || 0), 0);
-  const total = weighted * 1.5 + unweighted;
-  const divisor = weights.length * 1.5 + (DATA.dimensions.length - weights.length);
-  return Math.round(total / divisor);
-}
-
-/* =========================================
-   Count-Up Animation (Task 2.2)
-   ========================================= */
-
-/**
- * Animate a number from 0 to target inside an element
- */
-function countUp(el, target, duration) {
-  const start = performance.now();
-  const suffix = el.dataset.suffix || '';
-
-  function tick(now) {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-    el.textContent = Math.round(eased * target) + suffix;
-    if (progress < 1) requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
-
-/**
- * Observe the hero hook stat and trigger count-up when visible
- */
-function initHookCountUp() {
-  const statEl = document.querySelector('.hero__hook-stat');
-  if (!statEl) return;
-  const target = parseInt(statEl.dataset.value, 10);
-  statEl.textContent = '0%';
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        countUp(statEl, target, 1500);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.5 });
-  observer.observe(statEl);
-}
 
 /* =========================================
    Scroll Observer
    ========================================= */
 
 function initScrollObserver() {
-  const sections = document.querySelectorAll('#story .section');
+  const sections = document.querySelectorAll('.section');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('section--visible');
-      }
+      if (entry.isIntersecting) entry.target.classList.add('section--visible');
     });
-  }, { threshold: 0.05 });
-
-  sections.forEach((section) => observer.observe(section));
-
-  // Make the first section visible immediately (it's scrolled into view)
-  const first = document.querySelector('#story .section');
-  if (first) first.classList.add('section--visible');
+  }, { threshold: 0.08 });
+  sections.forEach((s) => observer.observe(s));
 }
 
 /* =========================================
-   Quiz (replaces inline personalizer)
+   Hero Count-Up
    ========================================= */
 
-const dimensionIcons = {
-  pay: '💰',
-  leadership: '📈',
-  leave: '👶',
-  growth: '🚀'
-};
+function initHeroStat() {
+  const el = document.querySelector('.hero__stat');
+  if (!el) return;
+  const target = parseInt(el.dataset.value, 10);
+  const suffix = el.dataset.suffix || '';
+  el.textContent = '0' + suffix;
 
-let quizStep = 1;
-const quizAnswers = { priorities: [], identity: 'all', career: 'mid' };
-
-function initQuiz() {
-  const startBtn = document.getElementById('start-quiz');
-  const quiz = document.getElementById('quiz');
-  const nextBtn = document.getElementById('quiz-next');
-  const backBtn = document.getElementById('quiz-back');
-  if (!startBtn || !quiz) return;
-
-  // Build Step 1 — Priorities
-  const priContainer = document.getElementById('quiz-priorities');
-  DATA.dimensions.forEach((dim) => {
-    const btn = createToggleButton({
-      label: DATA.dimensionLabels[dim],
-      value: dim,
-      icon: dimensionIcons[dim],
-      isActive: false,
-      onClick: (val, el) => {
-        const idx = quizAnswers.priorities.indexOf(val);
-        if (idx > -1) {
-          quizAnswers.priorities.splice(idx, 1);
-          el.classList.remove('toggle-btn--active');
-          el.setAttribute('aria-pressed', 'false');
-        } else {
-          quizAnswers.priorities.push(val);
-          el.classList.add('toggle-btn--active');
-          el.setAttribute('aria-pressed', 'true');
-        }
-      }
-    });
-    priContainer.appendChild(btn);
-  });
-
-  // Build Step 2 — Identity
-  const idContainer = document.getElementById('quiz-identity');
-  Object.keys(DATA.raceLabels).forEach((key) => {
-    const btn = createToggleButton({
-      label: DATA.raceLabels[key],
-      value: key,
-      icon: '',
-      isActive: key === 'all',
-      onClick: (val, el) => {
-        quizAnswers.identity = val;
-        idContainer.querySelectorAll('.toggle-btn').forEach((b) => {
-          b.classList.toggle('toggle-btn--active', b.dataset.value === val);
-          b.setAttribute('aria-pressed', b.dataset.value === val);
-        });
-      }
-    });
-    idContainer.appendChild(btn);
-  });
-
-  // Build Step 3 — Career stage
-  const careerContainer = document.getElementById('quiz-career');
-  DATA.careerStages.forEach((stage) => {
-    const btn = createToggleButton({
-      label: stage.label,
-      value: stage.id,
-      icon: '',
-      isActive: stage.id === 'mid',
-      onClick: (val, el) => {
-        quizAnswers.career = val;
-        careerContainer.querySelectorAll('.toggle-btn').forEach((b) => {
-          b.classList.toggle('toggle-btn--active', b.dataset.value === val);
-          b.setAttribute('aria-pressed', b.dataset.value === val);
-        });
-      }
-    });
-    // Add description below label
-    const desc = document.createElement('span');
-    desc.className = 'toggle-btn__desc';
-    desc.textContent = stage.description;
-    btn.appendChild(desc);
-    careerContainer.appendChild(btn);
-  });
-
-  // Open quiz
-  startBtn.addEventListener('click', () => {
-    quiz.hidden = false;
-    quiz.querySelector('.quiz__step[data-step="1"]').querySelector('.toggle-btn').focus();
-    updateQuizStep();
-  });
-
-  // Navigation
-  nextBtn.addEventListener('click', () => {
-    if (quizStep < 3) {
-      quizStep++;
-      updateQuizStep();
-    } else {
-      completeQuiz();
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      animateCount(el, target, suffix, 1200);
+      observer.unobserve(el);
     }
-  });
-
-  backBtn.addEventListener('click', () => {
-    if (quizStep > 1) {
-      quizStep--;
-      updateQuizStep();
-    }
-  });
+  }, { threshold: 0.5 });
+  observer.observe(el);
 }
 
-function updateQuizStep() {
-  const steps = document.querySelectorAll('.quiz__step');
-  steps.forEach((s) => { s.hidden = s.dataset.step !== String(quizStep); });
-
-  const backBtn = document.getElementById('quiz-back');
-  const nextBtn = document.getElementById('quiz-next');
-  const progressBar = document.getElementById('quiz-progress');
-  backBtn.hidden = quizStep === 1;
-  nextBtn.textContent = quizStep === 3 ? 'See My Results' : 'Next';
-  progressBar.style.width = ((quizStep / 3) * 100) + '%';
-}
-
-function completeQuiz() {
-  // Apply quiz answers to app state
-  setState('activeWeights', [...quizAnswers.priorities]);
-  setState('activeFilter', quizAnswers.identity);
-  appState.careerStage = quizAnswers.career;
-
-  // Hide quiz, show story
-  document.getElementById('quiz').hidden = true;
-  const story = document.getElementById('story');
-  story.hidden = false;
-
-  // Render all sections
-  renderProfileSummary();
-  renderRecommendation();
-  renderScorecard();
-  initFunnel();
-  renderRaceFilterGrid();
-  initVignettes();
-  renderActionLinks();
-
-  // D3 charts need the DOM to be visible and laid out
-  requestAnimationFrame(() => {
-    initScatter();
-
-    // Init scroll observer after story is visible
-    initScrollObserver();
-
-    // Smooth scroll to results
-    document.getElementById('your-profile').scrollIntoView({ behavior: 'smooth' });
-  });
+function animateCount(el, target, suffix, duration) {
+  const start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(p * target) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
 
 /* =========================================
-   Profile Summary
-   ========================================= */
-
-function renderProfileSummary() {
-  const container = document.getElementById('profile-summary');
-  if (!container) return;
-
-  const priorities = quizAnswers.priorities.length
-    ? quizAnswers.priorities.map((p) => `<span class="profile__tag">${dimensionIcons[p]} ${DATA.dimensionLabels[p]}</span>`).join('')
-    : '<span class="profile__tag">No specific priority</span>';
-  const identity = DATA.raceLabels[quizAnswers.identity];
-  const career = DATA.careerStages.find((s) => s.id === quizAnswers.career);
-
-  container.innerHTML = `
-    <div class="profile__row"><span class="profile__label">Your priorities</span><div class="profile__tags">${priorities}</div></div>
-    <div class="profile__row"><span class="profile__label">Identity</span><span class="profile__value">${identity}</span></div>
-    <div class="profile__row"><span class="profile__label">Career stage</span><span class="profile__value">${career.label}</span></div>
-  `;
-}
-
-/* =========================================
-   Scorecard Grid (E4)
+   Scorecard
    ========================================= */
 
 function renderScorecard() {
-  const container = document.querySelector('.scorecard__grid');
-  if (!container) return;
-
-  container.innerHTML = '';
-  const mod = DATA.raceModifiers[appState.activeFilter];
-
-  const sorted = [...DATA.industries].map((ind) => {
-    const adjusted = {};
-    DATA.dimensions.forEach((dim) => {
-      adjusted[dim] = Math.round(ind.scores[dim] * mod[dim]);
-    });
-    return { ...ind, scores: adjusted };
-  }).sort((a, b) =>
-    computeWeightedScore(b.scores, appState.activeWeights) -
-    computeWeightedScore(a.scores, appState.activeWeights)
-  );
-
-  sorted.forEach((industry, i) => {
-    const card = createScorecardCard(industry, appState.activeWeights);
-    if (i === 0) card.classList.add('scorecard__card--top');
-    container.appendChild(card);
-  });
-}
-
-/* =========================================
-   Leadership Pipeline Funnel (E5)
-   ========================================= */
-
-let funnelActiveIndustry = 'technology';
-
-function initFunnel() {
-  const controlsContainer = document.querySelector('.funnel__controls');
-  if (!controlsContainer) return;
-
-  DATA.industries.forEach((ind) => {
-    const btn = createToggleButton({
-      label: ind.name,
-      value: ind.id,
-      icon: '',
-      isActive: ind.id === funnelActiveIndustry,
-      onClick: handleFunnelToggle
-    });
-    controlsContainer.appendChild(btn);
-  });
-
-  renderFunnel(funnelActiveIndustry);
-}
-
-function handleFunnelToggle(value, btn) {
-  funnelActiveIndustry = value;
-  const controls = document.querySelectorAll('.funnel__controls .toggle-btn');
-  controls.forEach((b) => {
-    b.classList.toggle('toggle-btn--active', b.dataset.value === value);
-    b.setAttribute('aria-pressed', b.dataset.value === value);
-  });
-  renderFunnel(value);
-}
-
-function renderFunnel(industryId) {
-  const chartEl = document.querySelector('.funnel__chart');
-  const calloutEl = document.querySelector('.funnel__callout');
-  if (!chartEl) return;
-
-  chartEl.innerHTML = '';
-
-  const levels = DATA.pipeline.levels;
-  const values = DATA.pipeline.byIndustry[industryId];
-  const industry = DATA.industries.find((i) => i.id === industryId);
-
-  const width = 700;
-  const height = levels.length * 60 + 40;
-  const barMaxWidth = 500;
-  const labelWidth = 100;
-
-  const svg = d3.select(chartEl)
-    .append('svg')
-    .attr('viewBox', `0 0 ${width} ${height}`)
-    .attr('role', 'img')
-    .attr('aria-label', `Pipeline funnel for ${industry.name}`);
-
-  // Find steepest drop
-  let maxDrop = 0;
-  let maxDropIdx = 0;
-  for (let i = 1; i < values.length; i++) {
-    const drop = values[i - 1] - values[i];
-    if (drop > maxDrop) { maxDrop = drop; maxDropIdx = i; }
-  }
-
-  levels.forEach((level, i) => {
-    const y = i * 60 + 20;
-    const barWidth = (values[i] / 100) * barMaxWidth;
-    const isDropoff = i === maxDropIdx;
-
-    // Label
-    svg.append('text')
-      .attr('x', labelWidth - 10)
-      .attr('y', y + 20)
-      .attr('text-anchor', 'end')
-      .attr('fill', '#8a8a8a')
-      .attr('font-size', '13')
-      .attr('font-family', 'Barlow Condensed, sans-serif')
-      .text(level);
-
-    // Bar
-    svg.append('rect')
-      .attr('x', labelWidth)
-      .attr('y', y + 4)
-      .attr('width', 0)
-      .attr('height', 28)
-      .attr('rx', 3)
-      .attr('fill', isDropoff ? '#ff6b6b' : '#c9a227')
-      .transition()
-      .duration(600)
-      .delay(i * 80)
-      .attr('width', barWidth);
-
-    // Value
-    svg.append('text')
-      .attr('x', labelWidth + barWidth + 10)
-      .attr('y', y + 23)
-      .attr('fill', '#f5f0e8')
-      .attr('font-size', '14')
-      .attr('font-weight', '600')
-      .attr('font-family', 'Barlow Condensed, sans-serif')
-      .attr('opacity', 0)
-      .text(values[i] + '%')
-      .transition()
-      .duration(400)
-      .delay(i * 80 + 300)
-      .attr('opacity', 1);
-  });
-
-  // Callout
-  if (calloutEl) {
-    const dropFrom = levels[maxDropIdx - 1];
-    const dropTo = levels[maxDropIdx];
-    calloutEl.textContent = `In ${industry.name}, the steepest drop is from ${dropFrom} to ${dropTo} — women go from ${values[maxDropIdx - 1]}% to ${values[maxDropIdx]}%.`;
-  }
-}
-
-/* =========================================
-   Pay vs Growth Scatter Plot (E6)
-   ========================================= */
-
-function initScatter() {
-  renderScatter();
-}
-
-function renderScatter() {
-  const chartEl = document.querySelector('.scatter__chart');
-  if (!chartEl) return;
-
-  chartEl.innerHTML = '';
-
-  const margin = { top: 30, right: 30, bottom: 50, left: 60 };
-  const width = 700;
-  const height = 500;
-  const innerW = width - margin.left - margin.right;
-  const innerH = height - margin.top - margin.bottom;
-
-  const svg = d3.select(chartEl)
-    .append('svg')
-    .attr('viewBox', `0 0 ${width} ${height}`)
-    .attr('role', 'img')
-    .attr('aria-label', 'Pay equity versus career growth scatter plot');
-
-  const g = svg.append('g')
-    .attr('transform', `translate(${margin.left},${margin.top})`);
-
-  const x = d3.scaleLinear().domain([40, 100]).range([0, innerW]);
-  const y = d3.scaleLinear().domain([30, 90]).range([innerH, 0]);
-
-  // Quadrant lines
-  g.append('line').attr('x1', x(70)).attr('x2', x(70)).attr('y1', 0).attr('y2', innerH)
-    .attr('stroke', '#333').attr('stroke-dasharray', '4');
-  g.append('line').attr('x1', 0).attr('x2', innerW).attr('y1', y(60)).attr('y2', y(60))
-    .attr('stroke', '#333').attr('stroke-dasharray', '4');
-
-  // Quadrant labels
-  const quadrants = [
-    { label: 'High Pay, High Growth', x: x(85), y: y(80), anchor: 'middle' },
-    { label: 'Low Pay, High Growth', x: x(55), y: y(80), anchor: 'middle' },
-    { label: 'High Pay, Low Growth', x: x(85), y: y(40), anchor: 'middle' },
-    { label: 'Low Pay, Low Growth', x: x(55), y: y(40), anchor: 'middle' },
-  ];
-  quadrants.forEach((q) => {
-    g.append('text').attr('x', q.x).attr('y', q.y)
-      .attr('text-anchor', q.anchor).attr('fill', '#555').attr('font-size', '11')
-      .attr('font-family', 'Barlow Condensed, sans-serif')
-      .text(q.label);
-  });
-
-  // Axes
-  g.append('g').attr('transform', `translate(0,${innerH})`)
-    .call(d3.axisBottom(x).ticks(6))
-    .selectAll('text').attr('fill', '#8a8a8a');
-  g.append('g')
-    .call(d3.axisLeft(y).ticks(6))
-    .selectAll('text').attr('fill', '#8a8a8a');
-
-  // Axis labels
-  svg.append('text').attr('x', width / 2).attr('y', height - 6)
-    .attr('text-anchor', 'middle').attr('fill', '#8a8a8a').attr('font-size', '13')
-    .attr('font-family', 'Barlow Condensed, sans-serif')
-    .text('Pay Equity Score');
-  svg.append('text').attr('x', 16).attr('y', height / 2)
-    .attr('text-anchor', 'middle').attr('fill', '#8a8a8a').attr('font-size', '13')
-    .attr('font-family', 'Barlow Condensed, sans-serif')
-    .attr('transform', `rotate(-90, 16, ${height / 2})`)
-    .text('Career Growth Score');
-
-  // Style axis lines
-  g.selectAll('.domain, line').attr('stroke', '#333');
-
-  // Dots + labels
-  const tooltip = d3.select(chartEl).append('div').attr('class', 'scatter__tooltip');
-
-  DATA.industries.forEach((ind) => {
-    const cx = x(ind.scores.pay);
-    const cy = y(ind.scores.growth);
-
-    g.append('circle')
-      .attr('cx', cx).attr('cy', cy).attr('r', 0)
-      .attr('fill', '#c9a227').attr('stroke', '#f5f0e8').attr('stroke-width', 2)
-      .style('cursor', 'pointer')
-      .on('mouseenter', function (event) {
-        d3.select(this).transition().duration(150).attr('r', 12);
-        tooltip.style('opacity', 1)
-          .html(`<strong>${ind.name}</strong><br>Pay: ${ind.scores.pay} | Growth: ${ind.scores.growth}`)
-          .style('left', (event.offsetX + 15) + 'px')
-          .style('top', (event.offsetY - 10) + 'px');
-      })
-      .on('mouseleave', function () {
-        d3.select(this).transition().duration(150).attr('r', 8);
-        tooltip.style('opacity', 0);
-      })
-      .transition().duration(500).delay(200)
-      .attr('r', 8);
-
-    g.append('text')
-      .attr('x', cx).attr('y', cy - 14)
-      .attr('text-anchor', 'middle').attr('fill', '#f5f0e8').attr('font-size', '11')
-      .attr('font-family', 'DM Sans, sans-serif')
-      .attr('opacity', 0)
-      .text(ind.name.split(' ')[0])
-      .transition().duration(400).delay(500)
-      .attr('opacity', 0.8);
-  });
-}
-
-/* =========================================
-   Race & Ethnicity Data (E7)
-   ========================================= */
-
-function renderRaceFilterGrid() {
-  const grid = document.querySelector('.race-filter__grid');
-  const callout = document.querySelector('.race-filter__callout');
-  const groupName = document.querySelector('.race-filter__group-name');
+  const grid = document.getElementById('scorecard-grid');
   if (!grid) return;
 
+  DATA.industries.forEach((ind) => {
+    const card = document.createElement('article');
+    card.className = 'scorecard__card';
+
+    let rows = '';
+    DATA.dimensions.forEach((dim) => {
+      const val = ind.metrics[dim];
+      const formatted = DATA.formatMetric(dim, val);
+      rows += `
+        <div class="scorecard__metric">
+          <span class="scorecard__metric-label">${DATA.dimensionDescriptions[dim]}</span>
+          <span class="scorecard__metric-value">${formatted}</span>
+        </div>`;
+    });
+
+    card.innerHTML = `<h3 class="scorecard__card-name">${ind.name}</h3>${rows}`;
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================
+   Pipeline Funnel (D3)
+   ========================================= */
+
+let funnelIndustry = 'technology';
+
+function initFunnel() {
+  const controls = document.getElementById('funnel-controls');
+  if (!controls) return;
+
+  DATA.industries.forEach((ind) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (ind.id === funnelIndustry ? ' toggle-btn--active' : '');
+    btn.textContent = ind.name;
+    btn.dataset.value = ind.id;
+    btn.addEventListener('click', () => {
+      funnelIndustry = ind.id;
+      controls.querySelectorAll('.toggle-btn').forEach((b) => {
+        b.classList.toggle('toggle-btn--active', b.dataset.value === ind.id);
+      });
+      renderFunnel();
+    });
+    controls.appendChild(btn);
+  });
+
+  renderFunnel();
+}
+
+function renderFunnel() {
+  const el = document.getElementById('funnel-chart');
+  const callout = document.getElementById('funnel-callout');
+  if (!el) return;
+  el.innerHTML = '';
+
+  const levels = DATA.pipeline.levels;
+  const values = DATA.pipeline.byIndustry[funnelIndustry];
+  const ind = DATA.industries.find((i) => i.id === funnelIndustry);
+
+  const width = 650, height = levels.length * 56 + 20, barMax = 450, labelW = 120;
+
+  const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${width} ${height}`);
+
+  let maxDrop = 0, dropIdx = 0;
+  for (let i = 1; i < values.length; i++) {
+    const d = values[i - 1] - values[i];
+    if (d > maxDrop) { maxDrop = d; dropIdx = i; }
+  }
+
+  levels.forEach((lvl, i) => {
+    const y = i * 56 + 10;
+    const bw = (values[i] / 100) * barMax;
+    const isDropoff = i === dropIdx;
+
+    svg.append('text').attr('x', labelW - 8).attr('y', y + 18)
+      .attr('text-anchor', 'end').attr('fill', '#9E9E9E').attr('font-size', '12')
+      .attr('font-family', 'Barlow Condensed, sans-serif').text(lvl);
+
+    svg.append('rect').attr('x', labelW).attr('y', y + 2).attr('width', 0).attr('height', 24)
+      .attr('rx', 3).attr('fill', isDropoff ? '#C47A8A' : '#7B5EA7')
+      .transition().duration(500).delay(i * 70).attr('width', bw);
+
+    svg.append('text').attr('x', labelW + bw + 8).attr('y', y + 19)
+      .attr('fill', '#F0EDE8').attr('font-size', '13').attr('font-weight', '600')
+      .attr('font-family', 'Barlow Condensed, sans-serif')
+      .attr('opacity', 0).text(values[i] + '%')
+      .transition().duration(300).delay(i * 70 + 300).attr('opacity', 1);
+  });
+
+  if (callout) {
+    callout.textContent = `In ${ind.name}, the steepest drop is from ${levels[dropIdx - 1]} to ${levels[dropIdx]} — ${values[dropIdx - 1]}% down to ${values[dropIdx]}%.`;
+  }
+}
+
+/* =========================================
+   Scatter Plot (D3)
+   ========================================= */
+
+function renderScatter() {
+  const el = document.getElementById('scatter-chart');
+  if (!el) return;
+  el.innerHTML = '';
+
+  const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+  const width = 650, height = 450;
+  const w = width - margin.left - margin.right;
+  const h = height - margin.top - margin.bottom;
+
+  const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${width} ${height}`);
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const x = d3.scaleLinear().domain([65, 98]).range([0, w]);
+  const y = d3.scaleLinear().domain([4, 10]).range([0, h]); // inverted: lower years = top
+
+  // Axes
+  g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x).ticks(5).tickFormat(d => `$0.${d}`))
+    .selectAll('text').attr('fill', '#9E9E9E');
+  g.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d + ' yrs'))
+    .selectAll('text').attr('fill', '#9E9E9E');
+  g.selectAll('.domain, line').attr('stroke', '#333');
+
+  // Axis labels
+  svg.append('text').attr('x', width / 2).attr('y', height - 4)
+    .attr('text-anchor', 'middle').attr('fill', '#9E9E9E').attr('font-size', '12')
+    .attr('font-family', 'Barlow Condensed').text('Pay Equity (cents per $1)');
+  svg.append('text').attr('x', 14).attr('y', height / 2)
+    .attr('text-anchor', 'middle').attr('fill', '#9E9E9E').attr('font-size', '12')
+    .attr('font-family', 'Barlow Condensed')
+    .attr('transform', `rotate(-90,14,${height / 2})`).text('Years to First Promotion (fewer = better)');
+
+  const tooltip = d3.select(el).append('div').attr('class', 'scatter__tooltip');
+
+  DATA.industries.forEach((ind) => {
+    const cx = x(ind.metrics.pay);
+    const cy = y(ind.metrics.growth);
+
+    g.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 0)
+      .attr('fill', '#C9B8E8').attr('stroke', '#F0EDE8').attr('stroke-width', 2)
+      .style('cursor', 'pointer')
+      .on('mouseenter', function(event) {
+        d3.select(this).transition().duration(100).attr('r', 11);
+        tooltip.style('opacity', 1)
+          .html(`<strong>${ind.name}</strong><br>Pay: $0.${ind.metrics.pay} | Growth: ${ind.metrics.growth} yrs`)
+          .style('left', (event.offsetX + 12) + 'px').style('top', (event.offsetY - 10) + 'px');
+      })
+      .on('mouseleave', function() {
+        d3.select(this).transition().duration(100).attr('r', 7);
+        tooltip.style('opacity', 0);
+      })
+      .transition().duration(400).delay(150).attr('r', 7);
+
+    g.append('text').attr('x', cx).attr('y', cy - 12)
+      .attr('text-anchor', 'middle').attr('fill', '#F0EDE8').attr('font-size', '10')
+      .attr('font-family', 'DM Sans').attr('opacity', 0)
+      .text(ind.name.length > 12 ? ind.name.split(' ')[0] : ind.name)
+      .transition().duration(300).delay(400).attr('opacity', 0.7);
+  });
+}
+
+/* =========================================
+   Race / Ethnicity Filter
+   ========================================= */
+
+let activeRace = 'all';
+
+function initRaceFilter() {
+  const controls = document.getElementById('race-controls');
+  if (!controls) return;
+
+  Object.keys(DATA.raceLabels).forEach((key) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (key === 'all' ? ' toggle-btn--active' : '');
+    btn.textContent = DATA.raceLabels[key];
+    btn.dataset.value = key;
+    btn.addEventListener('click', () => {
+      activeRace = key;
+      controls.querySelectorAll('.toggle-btn').forEach((b) => {
+        b.classList.toggle('toggle-btn--active', b.dataset.value === key);
+      });
+      renderRaceGrid();
+    });
+    controls.appendChild(btn);
+  });
+
+  renderRaceGrid();
+}
+
+function renderRaceGrid() {
+  const grid = document.getElementById('race-grid');
+  const callout = document.getElementById('race-callout');
+  if (!grid) return;
   grid.innerHTML = '';
 
-  const filter = appState.activeFilter;
-  const mod = DATA.raceModifiers[filter];
-
-  if (groupName) groupName.textContent = DATA.raceLabels[filter];
+  const mod = DATA.raceModifiers[activeRace];
 
   DATA.industries.forEach((ind) => {
     const card = document.createElement('article');
@@ -617,16 +256,28 @@ function renderRaceFilterGrid() {
 
     let rows = '';
     DATA.dimensions.forEach((dim) => {
-      const base = ind.scores[dim];
-      const adjusted = Math.round(base * mod[dim]);
-      const diff = adjusted - base;
-      const diffStr = diff === 0 ? '—' : (diff > 0 ? `+${diff}` : `${diff}`);
-      const diffClass = diff < 0 ? 'race-card__diff--neg' : diff > 0 ? 'race-card__diff--pos' : '';
+      const base = ind.metrics[dim];
+      let adjusted;
+      if (dim === 'growth') {
+        adjusted = Math.round(base * mod[dim] * 10) / 10;
+      } else {
+        adjusted = Math.round(base * mod[dim]);
+      }
+      const formatted = DATA.formatMetric(dim, adjusted);
+
+      const diff = dim === 'growth'
+        ? Math.round((adjusted - base) * 10) / 10
+        : adjusted - base;
+      const isWorse = dim === 'growth' ? diff > 0 : diff < 0;
+      const isBetter = dim === 'growth' ? diff < 0 : diff > 0;
+      const diffStr = diff === 0 ? '' : (diff > 0 ? `+${dim === 'growth' ? diff.toFixed(1) : diff}` : String(dim === 'growth' ? diff.toFixed(1) : diff));
+      const cls = isWorse ? 'race-card__diff--neg' : isBetter ? 'race-card__diff--pos' : '';
+
       rows += `
         <div class="race-card__row">
           <span class="race-card__dim">${DATA.dimensionLabels[dim]}</span>
-          <span class="race-card__score">${adjusted}</span>
-          <span class="race-card__diff ${diffClass}">${diffStr}</span>
+          <span class="race-card__val">${formatted}</span>
+          <span class="race-card__diff ${cls}">${diffStr}</span>
         </div>`;
     });
 
@@ -635,147 +286,252 @@ function renderRaceFilterGrid() {
   });
 
   if (callout) {
-    if (filter === 'all') {
-      callout.textContent = 'These are averaged scores across all women. Take the quiz to see data specific to your identity.';
+    if (activeRace === 'all') {
+      callout.textContent = '';
     } else {
-      const label = DATA.raceLabels[filter];
-      const worstDim = DATA.dimensions.reduce((worst, dim) =>
-        mod[dim] < mod[worst] ? dim : worst, DATA.dimensions[0]);
-      const pctDrop = Math.round((1 - mod[worstDim]) * 100);
-      callout.textContent = `For ${label}, the biggest gap is in ${DATA.dimensionLabels[worstDim]} — scores drop by up to ${pctDrop}% compared to the average.`;
+      const label = DATA.raceLabels[activeRace];
+      const dims = DATA.dimensions.filter(d => d !== 'leave');
+      const worst = dims.reduce((w, d) => {
+        const gap = d === 'growth' ? mod[d] - 1 : 1 - mod[d];
+        return gap > (w.gap || 0) ? { dim: d, gap } : w;
+      }, {});
+      const pct = Math.round(worst.gap * 100);
+      callout.textContent = `For ${label}, the largest gap is in ${DATA.dimensionLabels[worst.dim]} — ${pct}% worse than the average.`;
     }
   }
 }
 
 /* =========================================
-   Persona Vignettes (E8)
+   Persona Stories (cards + modal)
    ========================================= */
 
-function initVignettes() {
-  const container = document.querySelector('.vignettes__grid');
-  if (!container) return;
+function renderStories() {
+  const grid = document.getElementById('stories-grid');
+  if (!grid) return;
 
-  DATA.personas.forEach((persona) => {
-    container.appendChild(createVignetteCard(persona));
+  DATA.personas.forEach((p) => {
+    const card = document.createElement('article');
+    card.className = 'story-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `Read ${p.name}'s story`);
+
+    card.innerHTML = `
+      <div class="story-card__portrait">${p.name.charAt(0)}</div>
+      <h3 class="story-card__name">${p.name}, ${p.age}</h3>
+      <p class="story-card__role">${p.role} — ${p.location}</p>
+      <blockquote class="story-card__quote">"${p.quote}"</blockquote>
+      <span class="story-card__cta">Read her story &rarr;</span>
+    `;
+
+    card.addEventListener('click', () => openStoryModal(p));
+    card.addEventListener('keydown', (e) => { if (e.key === 'Enter') openStoryModal(p); });
+    grid.appendChild(card);
+  });
+}
+
+function openStoryModal(persona) {
+  const modal = document.getElementById('story-modal');
+  const content = document.getElementById('story-modal-content');
+  if (!modal || !content) return;
+
+  const paragraphs = persona.story.map(p => `<p>${p}</p>`).join('');
+
+  content.innerHTML = `
+    <button class="story-modal__close" id="story-modal-close" aria-label="Close story">&times;</button>
+    <div class="story-modal__header">
+      <div class="story-modal__portrait">${persona.name.charAt(0)}</div>
+      <div>
+        <h2 class="story-modal__name">${persona.name}</h2>
+        <p class="story-modal__meta">${persona.age} — ${persona.role} — ${persona.location}</p>
+      </div>
+    </div>
+    <div class="story-modal__body">${paragraphs}</div>
+    <div class="story-modal__insight">${persona.dataInsight}</div>
+  `;
+
+  modal.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  const closeBtn = document.getElementById('story-modal-close');
+  const backdrop = modal.querySelector('.story-modal__backdrop');
+  const close = () => {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  };
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
   });
 }
 
 /* =========================================
-   Recommendation Engine (E9)
+   Find Where You Stand (Quiz at end)
    ========================================= */
 
-function initRecommendation() {
-  renderRecommendation();
-  document.addEventListener('stateChange', renderRecommendation);
+const findAnswers = { priorities: [], identity: 'all', career: 'mid' };
+
+function initFind() {
+  const priContainer = document.getElementById('find-priorities');
+  const idContainer = document.getElementById('find-identity');
+  const careerContainer = document.getElementById('find-career');
+  const submitBtn = document.getElementById('find-submit');
+  if (!priContainer || !submitBtn) return;
+
+  // Priorities
+  DATA.dimensions.forEach((dim) => {
+    const icons = { pay: '💰', leadership: '📈', leave: '👶', growth: '🚀' };
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn';
+    btn.innerHTML = `${icons[dim]} ${DATA.dimensionLabels[dim]}`;
+    btn.dataset.value = dim;
+    btn.addEventListener('click', () => {
+      const idx = findAnswers.priorities.indexOf(dim);
+      if (idx > -1) { findAnswers.priorities.splice(idx, 1); btn.classList.remove('toggle-btn--active'); }
+      else { findAnswers.priorities.push(dim); btn.classList.add('toggle-btn--active'); }
+    });
+    priContainer.appendChild(btn);
+  });
+
+  // Identity
+  Object.keys(DATA.raceLabels).forEach((key) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (key === 'all' ? ' toggle-btn--active' : '');
+    btn.textContent = DATA.raceLabels[key];
+    btn.dataset.value = key;
+    btn.addEventListener('click', () => {
+      findAnswers.identity = key;
+      idContainer.querySelectorAll('.toggle-btn').forEach(b => {
+        b.classList.toggle('toggle-btn--active', b.dataset.value === key);
+      });
+    });
+    idContainer.appendChild(btn);
+  });
+
+  // Career
+  DATA.careerStages.forEach((s) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (s.id === 'mid' ? ' toggle-btn--active' : '');
+    btn.textContent = s.label;
+    btn.dataset.value = s.id;
+    btn.addEventListener('click', () => {
+      findAnswers.career = s.id;
+      careerContainer.querySelectorAll('.toggle-btn').forEach(b => {
+        b.classList.toggle('toggle-btn--active', b.dataset.value === s.id);
+      });
+    });
+    careerContainer.appendChild(btn);
+  });
+
+  submitBtn.addEventListener('click', showResults);
 }
 
-function renderRecommendation() {
-  const container = document.querySelector('.recommendation__result');
-  if (!container) return;
+function showResults() {
+  const section = document.getElementById('results');
+  const content = document.getElementById('results-content');
+  const actions = document.getElementById('results-actions');
+  if (!section || !content) return;
 
-  const weights = appState.activeWeights;
-  const filter = appState.activeFilter;
-  const mod = DATA.raceModifiers[filter];
+  const mod = DATA.raceModifiers[findAnswers.identity];
+  const weights = findAnswers.priorities;
 
-  // Score each industry with weights + race modifier
+  // Score industries
   const scored = DATA.industries.map((ind) => {
-    const adjusted = {};
-    DATA.dimensions.forEach((dim) => {
-      adjusted[dim] = Math.round(ind.scores[dim] * mod[dim]);
+    let score = 0;
+    const activeDims = weights.length > 0 ? weights : DATA.dimensions;
+
+    activeDims.forEach((dim) => {
+      let val = ind.metrics[dim];
+      if (dim === 'growth') {
+        val = val * mod[dim];
+        // Normalize: lower is better, so invert. Scale 4-10 → 100-0
+        score += ((10 - val) / 6) * 100;
+      } else {
+        val = val * mod[dim];
+        // Normalize each to rough 0-100 scale
+        if (dim === 'pay') score += val; // already 0-100 (cents)
+        else if (dim === 'leadership') score += val * (100 / 30); // max ~30%
+        else if (dim === 'leave') score += val * (100 / 20); // max ~20 weeks
+      }
     });
-    return { ...ind, adjustedScores: adjusted, total: computeWeightedScore(adjusted, weights) };
-  }).sort((a, b) => b.total - a.total);
+
+    return { ...ind, score: Math.round(score / activeDims.length) };
+  }).sort((a, b) => b.score - a.score);
 
   const top = scored[0];
   const runner = scored[1];
+  const links = DATA.jobLinks[top.id];
 
-  container.innerHTML = `
-    <div class="recommendation__badge">
-      <svg class="recommendation__medallion" viewBox="0 0 160 160" aria-hidden="true">
+  section.hidden = false;
+
+  content.innerHTML = `
+    <div class="results__badge">
+      <svg class="results__medallion" viewBox="0 0 160 160" aria-hidden="true">
         <circle cx="80" cy="80" r="72" fill="none" stroke="currentColor" stroke-width="2"/>
         <circle cx="80" cy="80" r="64" fill="none" stroke="currentColor" stroke-width="1"/>
-        <polygon points="80,20 86,36 80,30 74,36" fill="currentColor"/>
-        <polygon points="80,140 86,124 80,130 74,124" fill="currentColor"/>
-        <polygon points="20,80 36,74 30,80 36,86" fill="currentColor"/>
-        <polygon points="140,80 124,74 130,80 124,86" fill="currentColor"/>
+        <polygon points="80,16 86,32 80,26 74,32" fill="currentColor"/>
+        <polygon points="80,144 86,128 80,134 74,128" fill="currentColor"/>
+        <polygon points="16,80 32,74 26,80 32,86" fill="currentColor"/>
+        <polygon points="144,80 128,74 134,80 128,86" fill="currentColor"/>
       </svg>
-      <span class="recommendation__badge-label">Best For You</span>
-      <span class="recommendation__badge-industry">${top.name}</span>
-      <span class="recommendation__badge-score">Score: ${top.total}</span>
+      <span class="results__top-label">Best For You</span>
+      <span class="results__top-industry">${top.name}</span>
     </div>
-    <div class="recommendation__runner">
-      <span class="recommendation__runner-label">Runner-Up</span>
-      <span class="recommendation__runner-industry">${runner.name}</span>
-      <span class="recommendation__runner-score">Score: ${runner.total}</span>
-    </div>
-    <p class="recommendation__cta">
+    <p class="results__runner">Runner-up: <strong>${runner.name}</strong></p>
+    <p class="results__explanation">
       ${weights.length > 0
-        ? `Based on your priorities (${weights.map(w => DATA.dimensionLabels[w]).join(', ')}), <strong>${top.name}</strong> is where you stand the best chance.`
-        : `Overall, <strong>${top.name}</strong> scores highest across all dimensions.`}
+        ? `Based on what you care about (${weights.map(w => DATA.dimensionLabels[w]).join(', ')}), <strong>${top.name}</strong> is where you stand the best chance.`
+        : `Across all dimensions, <strong>${top.name}</strong> comes out on top.`}
     </p>
   `;
+
+  actions.innerHTML = `
+    <a href="${links.linkedin}" target="_blank" rel="noopener" class="results__link results__link--linkedin">Search on LinkedIn</a>
+    <a href="${links.indeed}" target="_blank" rel="noopener" class="results__link results__link--indeed">${top.id === 'public-sector' ? 'Browse USAJobs' : 'Search on Indeed'}</a>
+    <button class="results__copy" onclick="copyResult()">Copy My Result</button>
+  `;
+
+  section.scrollIntoView({ behavior: 'smooth' });
+  section.classList.add('section--visible');
 }
 
 function copyResult() {
-  const weights = appState.activeWeights;
-  const filter = appState.activeFilter;
-  const mod = DATA.raceModifiers[filter];
+  const weights = findAnswers.priorities;
+  const mod = DATA.raceModifiers[findAnswers.identity];
   const scored = DATA.industries.map((ind) => {
-    const adjusted = {};
-    DATA.dimensions.forEach((dim) => {
-      adjusted[dim] = Math.round(ind.scores[dim] * mod[dim]);
+    let score = 0;
+    const dims = weights.length > 0 ? weights : DATA.dimensions;
+    dims.forEach((dim) => {
+      let val = ind.metrics[dim] * mod[dim];
+      if (dim === 'growth') score += ((10 - val) / 6) * 100;
+      else if (dim === 'pay') score += val;
+      else if (dim === 'leadership') score += val * (100 / 30);
+      else if (dim === 'leave') score += val * (100 / 20);
     });
-    return { ...ind, total: computeWeightedScore(adjusted, weights) };
-  }).sort((a, b) => b.total - a.total);
+    return { name: ind.name, score: Math.round(score / dims.length) };
+  }).sort((a, b) => b.score - a.score);
 
-  const text = `Where She Stands: My top industry is ${scored[0].name} (score: ${scored[0].total}). Priorities: ${weights.length ? weights.map(w => DATA.dimensionLabels[w]).join(', ') : 'none set'}.`;
+  const text = `Where She Stands: My best-fit industry is ${scored[0].name}. Priorities: ${weights.length ? weights.map(w => DATA.dimensionLabels[w]).join(', ') : 'all'}. Filter: ${DATA.raceLabels[findAnswers.identity]}.`;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.recommendation__share');
-    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy My Result'; }, 2000); }
+    const btn = document.querySelector('.results__copy');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy My Result', 2000); }
   });
 }
 
 /* =========================================
-   Action Links (E9)
-   ========================================= */
-
-function renderActionLinks() {
-  const container = document.getElementById('action-links');
-  if (!container) return;
-
-  // Get top industry
-  const mod = DATA.raceModifiers[appState.activeFilter];
-  const scored = DATA.industries.map((ind) => {
-    const adjusted = {};
-    DATA.dimensions.forEach((dim) => {
-      adjusted[dim] = Math.round(ind.scores[dim] * mod[dim]);
-    });
-    return { ...ind, total: computeWeightedScore(adjusted, appState.activeWeights) };
-  }).sort((a, b) => b.total - a.total);
-
-  const top = scored[0];
-  const links = DATA.jobLinks[top.id];
-
-  container.innerHTML = `
-    <p class="action__intro">Your top match is <strong>${top.name}</strong>. Start exploring opportunities:</p>
-    <div class="action__buttons">
-      <a href="${links.linkedin}" target="_blank" rel="noopener noreferrer" class="action__link action__link--linkedin">
-        Search ${top.name} on LinkedIn
-      </a>
-      <a href="${links.indeed}" target="_blank" rel="noopener noreferrer" class="action__link action__link--indeed">
-        ${top.id === 'public-sector' ? 'Browse USAJobs.gov' : `Search ${top.name} on Indeed`}
-      </a>
-    </div>
-  `;
-}
-
-/* =========================================
-   Init
+   Init — everything renders on load
    ========================================= */
 
 function init() {
-  initHookCountUp();
-  initQuiz();
+  initScrollObserver();
+  initHeroStat();
+  renderScorecard();
+  initFunnel();
+  renderScatter();
+  initRaceFilter();
+  renderStories();
+  initFind();
 }
 
 document.addEventListener('DOMContentLoaded', init);

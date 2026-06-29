@@ -14,7 +14,7 @@
   <!-- D3.js -->
   <script src="https://d3js.org/d3.v7.min.js" defer></script>
 
-  <!-- Project Styles -->
+  <!-- Project -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -27,15 +27,12 @@
 
   <main id="main-content">
 
-    <!-- HERO & HOOK -->
+    <!-- HERO -->
     <section id="hook" class="hero" aria-labelledby="hook-heading">
-
-      <!-- Art Deco decorative lines (top) -->
       <svg class="hero__deco hero__deco--top" viewBox="0 0 1200 80" aria-hidden="true" preserveAspectRatio="none">
         <line x1="0" y1="40" x2="1200" y2="40" stroke="currentColor" stroke-width="1"/>
-        <line x1="0" y1="44" x2="1200" y2="44" stroke="currentColor" stroke-width="0.5"/>
         <circle cx="600" cy="40" r="6" fill="none" stroke="currentColor" stroke-width="1"/>
-        <circle cx="600" cy="40" r="12" fill="none" stroke="currentColor" stroke-width="0.5"/>
+        <circle cx="600" cy="40" r="14" fill="none" stroke="currentColor" stroke-width="0.5"/>
       </svg>
 
       <div class="hero__content">
@@ -44,150 +41,106 @@
           <span class="hero__title-line">Where She</span>
           <span class="hero__title-line hero__title-line--accent">Stands</span>
         </h1>
-
         <p class="hero__hook">
           Women make up nearly half the workforce.<br>
-          So why do they hold less than <strong class="hero__hook-stat" data-value="15" data-suffix="%">0%</strong> of C-suite roles in most industries?
+          So why do they hold less than <strong class="hero__stat" data-value="15" data-suffix="%">0%</strong> of C-suite roles in most industries?
         </p>
-
-        <p class="hero__subhook">
-          The answer depends on which industry — and who's counting.
-        </p>
+        <p class="hero__subhook">Scroll to see the data. Then decide where you stand.</p>
       </div>
 
-      <!-- Art Deco decorative lines (bottom) -->
       <svg class="hero__deco hero__deco--bottom" viewBox="0 0 1200 80" aria-hidden="true" preserveAspectRatio="none">
         <line x1="0" y1="40" x2="1200" y2="40" stroke="currentColor" stroke-width="1"/>
-        <line x1="0" y1="36" x2="1200" y2="36" stroke="currentColor" stroke-width="0.5"/>
         <circle cx="600" cy="40" r="6" fill="none" stroke="currentColor" stroke-width="1"/>
-        <circle cx="600" cy="40" r="12" fill="none" stroke="currentColor" stroke-width="0.5"/>
+        <circle cx="600" cy="40" r="14" fill="none" stroke="currentColor" stroke-width="0.5"/>
       </svg>
 
-      <!-- Scroll indicator -->
-      <div class="hero__scroll">
-        <button class="hero__cta" id="start-quiz" aria-label="Start the questionnaire">
-          Find Where You Stand
-        </button>
-      </div>
-
-    </section>
-
-    <!-- QUIZ OVERLAY -->
-    <div id="quiz" class="quiz" role="dialog" aria-modal="true" aria-labelledby="quiz-title" hidden>
-      <div class="quiz__panel">
-        <div class="quiz__progress">
-          <div class="quiz__progress-bar" id="quiz-progress"></div>
-        </div>
-
-        <!-- Step 1: Priorities -->
-        <div class="quiz__step" data-step="1">
-          <h2 class="quiz__question" id="quiz-title">What matters most to you in a workplace?</h2>
-          <p class="quiz__hint">Select one or more.</p>
-          <div class="quiz__options" role="group" aria-label="Select your priorities" id="quiz-priorities">
-            <!-- Injected by JS -->
-          </div>
-        </div>
-
-        <!-- Step 2: Identity -->
-        <div class="quiz__step" data-step="2" hidden>
-          <h2 class="quiz__question">How do you identify?</h2>
-          <p class="quiz__hint">This adjusts the data to show gaps specific to your group.</p>
-          <div class="quiz__options" role="group" aria-label="Select your identity" id="quiz-identity">
-            <!-- Injected by JS -->
-          </div>
-        </div>
-
-        <!-- Step 3: Career stage -->
-        <div class="quiz__step" data-step="3" hidden>
-          <h2 class="quiz__question">Where are you in your career?</h2>
-          <p class="quiz__hint">This helps us highlight what's most relevant.</p>
-          <div class="quiz__options" role="group" aria-label="Select your career stage" id="quiz-career">
-            <!-- Injected by JS -->
-          </div>
-        </div>
-
-        <div class="quiz__nav">
-          <button class="quiz__btn quiz__btn--back" id="quiz-back" hidden>Back</button>
-          <button class="quiz__btn quiz__btn--next" id="quiz-next">Next</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STORY (hidden until quiz is complete) -->
-    <div id="story" class="story" hidden>
-
-    <!-- PERSONALIZER SUMMARY -->
-    <section id="your-profile" class="section section--profile" aria-labelledby="profile-heading">
-      <h2 id="profile-heading" class="section__heading">Your Profile</h2>
-      <div class="profile__summary" id="profile-summary">
-        <!-- Injected after quiz -->
+      <div class="hero__scroll" aria-hidden="true">
+        <span class="hero__scroll-text">Scroll to explore</span>
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </div>
     </section>
 
-    <!-- RECOMMENDATION (moved up — your answer first) -->
-    <section id="recommendation" class="section section--recommendation" aria-labelledby="recommendation-heading">
-      <h2 id="recommendation-heading" class="section__heading">Where You Stand Best</h2>
-      <div class="recommendation__result" aria-live="polite">
-        <!-- Personalized recommendation injected by interactions.js -->
-      </div>
-    </section>
-
-    <!-- SCORECARD -->
-    <section id="scorecard" class="section section--scorecard" aria-labelledby="scorecard-heading">
-      <h2 id="scorecard-heading" class="section__heading">How All Industries Compare</h2>
-      <p class="section__subtitle">Ranked by your priorities. Scores adjusted for your demographic.</p>
-      <div class="scorecard__grid" role="table" aria-label="Industry scorecard comparing equity dimensions">
-      </div>
+    <!-- INDUSTRY SCORECARD -->
+    <section id="scorecard" class="section" aria-labelledby="scorecard-heading">
+      <h2 id="scorecard-heading" class="section__heading">The Landscape</h2>
+      <p class="section__subtitle">Six industries. Four dimensions of equity. Real numbers.</p>
+      <div class="scorecard__grid" id="scorecard-grid"></div>
     </section>
 
     <!-- PIPELINE FUNNEL -->
-    <section id="funnel" class="section section--funnel" aria-labelledby="funnel-heading">
+    <section id="funnel" class="section" aria-labelledby="funnel-heading">
       <h2 id="funnel-heading" class="section__heading">Where Women Drop Off</h2>
-      <p class="section__subtitle">Women's representation at each career level — select an industry to compare.</p>
-      <div class="funnel__controls" role="group" aria-label="Select industry for funnel chart">
-      </div>
-      <div class="funnel__wrapper">
-        <figure class="funnel__chart" aria-label="Leadership pipeline funnel chart">
-        </figure>
-        <p class="funnel__callout" aria-live="polite"></p>
-      </div>
+      <p class="section__subtitle">Representation at each level of the career ladder. Select an industry.</p>
+      <div class="funnel__controls" id="funnel-controls"></div>
+      <figure class="funnel__chart" id="funnel-chart" aria-label="Leadership pipeline chart"></figure>
+      <p class="funnel__callout" id="funnel-callout"></p>
     </section>
 
     <!-- PAY VS GROWTH SCATTER -->
-    <section id="scatter" class="section section--scatter" aria-labelledby="scatter-heading">
-      <h2 id="scatter-heading" class="section__heading">Does High Pay Mean High Growth?</h2>
-      <p class="section__subtitle">Spoiler: not always. Industries that pay well don't necessarily promote well.</p>
-      <figure class="scatter__chart" aria-label="Pay versus career growth scatter plot">
-      </figure>
+    <section id="scatter" class="section" aria-labelledby="scatter-heading">
+      <h2 id="scatter-heading" class="section__heading">Does High Pay Mean Fast Growth?</h2>
+      <p class="section__subtitle">Not always. Some industries pay well but promote slowly — and vice versa.</p>
+      <figure class="scatter__chart" id="scatter-chart" aria-label="Pay versus growth scatter plot"></figure>
     </section>
 
-    <!-- RACE & ETHNICITY INSIGHT -->
-    <section id="race-filter" class="section section--race-filter" aria-labelledby="race-heading">
+    <!-- RACE & ETHNICITY -->
+    <section id="race" class="section" aria-labelledby="race-heading">
       <h2 id="race-heading" class="section__heading">The Real Story</h2>
-      <p class="section__subtitle">The "average" has been hiding this. Here's what the data looks like for <strong class="race-filter__group-name">your group</strong>.</p>
-      <p class="race-filter__callout" aria-live="polite"></p>
-      <div class="race-filter__grid">
+      <p class="section__subtitle">The averages above hide a deeper inequity. Filter by identity to see the real gaps.</p>
+      <div class="race__controls" id="race-controls"></div>
+      <p class="race__callout" id="race-callout"></p>
+      <div class="race__grid" id="race-grid"></div>
+    </section>
+
+    <!-- PERSONA STORIES -->
+    <section id="stories" class="section" aria-labelledby="stories-heading">
+      <h2 id="stories-heading" class="section__heading">Three Women, Three Choices</h2>
+      <p class="section__subtitle">The data becomes real when you see it through someone's life.</p>
+      <div class="stories__grid" id="stories-grid"></div>
+    </section>
+
+    <!-- PERSONA ARTICLE MODAL -->
+    <div id="story-modal" class="story-modal" hidden>
+      <div class="story-modal__backdrop"></div>
+      <article class="story-modal__content" id="story-modal-content" role="dialog" aria-modal="true">
+        <button class="story-modal__close" id="story-modal-close" aria-label="Close story">&times;</button>
+        <!-- Filled dynamically -->
+      </article>
+    </div>
+
+    <!-- FIND WHERE YOU STAND (quiz at end) -->
+    <section id="find" class="section section--find" aria-labelledby="find-heading">
+      <h2 id="find-heading" class="section__heading">Now — Find Where You Stand</h2>
+      <p class="section__subtitle">You've seen the data. Tell us what matters to you.</p>
+
+      <div class="find__form" id="find-form">
+        <div class="find__group">
+          <h3 class="find__label">What matters most?</h3>
+          <p class="find__hint">Select one or more priorities.</p>
+          <div class="find__options" id="find-priorities"></div>
+        </div>
+
+        <div class="find__group">
+          <h3 class="find__label">How do you identify?</h3>
+          <p class="find__hint">Adjusts data to show gaps specific to your group.</p>
+          <div class="find__options" id="find-identity"></div>
+        </div>
+
+        <div class="find__group">
+          <h3 class="find__label">Where are you in your career?</h3>
+          <div class="find__options" id="find-career"></div>
+        </div>
+
+        <button class="find__submit" id="find-submit">Show My Results</button>
       </div>
     </section>
 
-    <!-- PERSONA VIGNETTES -->
-    <section id="vignettes" class="section section--vignettes" aria-labelledby="vignettes-heading">
-      <h2 id="vignettes-heading" class="section__heading">Real Decisions, Real Trade-Offs</h2>
-      <div class="vignettes__grid">
-      </div>
+    <!-- RESULTS (hidden until submit) -->
+    <section id="results" class="section section--results" hidden aria-labelledby="results-heading">
+      <h2 id="results-heading" class="section__heading">Where You Stand Best</h2>
+      <div class="results__content" id="results-content"></div>
+      <div class="results__actions" id="results-actions"></div>
     </section>
-
-    <!-- TAKE ACTION -->
-    <section id="action" class="section section--action" aria-labelledby="action-heading">
-      <h2 id="action-heading" class="section__heading">Take Action</h2>
-      <p class="section__subtitle">Ready to make a move? Start your search.</p>
-      <div class="action__links" id="action-links">
-        <!-- Job board links injected by JS -->
-      </div>
-      <button class="recommendation__share" onclick="copyResult()">Copy My Result</button>
-    </section>
-
-    </div><!-- /story -->
 
   </main>
 
@@ -195,7 +148,6 @@
     <p class="site-footer__note">Data is illustrative, not sourced from live datasets. Built to tell the story the averages hide.</p>
   </footer>
 
-  <!-- Project Scripts -->
   <script src="data.js"></script>
   <script src="interactions.js"></script>
 </body>
