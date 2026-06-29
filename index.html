@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where She Stands</title>
+  <meta name="description" content="An interactive data story comparing gender equity across 6 industries — pay, leadership, family leave, and career growth — layered by race and ethnicity.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+
+  <!-- D3.js -->
+  <script src="https://d3js.org/d3.v7.min.js" defer></script>
+
+  <!-- Project Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <nav class="site-header__nav" aria-label="Primary navigation">
+      <span class="site-header__logo">Where She Stands</span>
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!-- HOOK -->
+    <section id="hook" class="section section--hook" aria-labelledby="hook-heading">
+      <h1 id="hook-heading" class="section__heading">
+        Women make up nearly half the workforce.<br>
+        So why do they hold less than 15% of C-suite roles in most industries?
+      </h1>
+    </section>
+
+    <!-- PERSONALIZER -->
+    <section id="personalizer" class="section section--personalizer" aria-labelledby="personalizer-heading">
+      <h2 id="personalizer-heading" class="section__heading">What matters most to you?</h2>
+      <div class="personalizer__options" role="group" aria-label="Select your priorities">
+        <!-- Buttons injected by interactions.js -->
+      </div>
+    </section>
+
+    <!-- SCORECARD -->
+    <section id="scorecard" class="section section--scorecard" aria-labelledby="scorecard-heading">
+      <h2 id="scorecard-heading" class="section__heading">The Big Picture</h2>
+      <div class="scorecard__grid" role="table" aria-label="Industry scorecard comparing equity dimensions">
+        <!-- Grid injected by interactions.js -->
+      </div>
+    </section>
+
+    <!-- PIPELINE FUNNEL -->
+    <section id="funnel" class="section section--funnel" aria-labelledby="funnel-heading">
+      <h2 id="funnel-heading" class="section__heading">Where Women Drop Off</h2>
+      <figure class="funnel__chart" role="img" aria-label="Leadership pipeline funnel chart">
+        <!-- D3 funnel chart -->
+      </figure>
+    </section>
+
+    <!-- PAY VS GROWTH SCATTER -->
+    <section id="scatter" class="section section--scatter" aria-labelledby="scatter-heading">
+      <h2 id="scatter-heading" class="section__heading">Does High Pay Mean High Growth?</h2>
+      <figure class="scatter__chart" role="img" aria-label="Pay versus career growth scatter plot">
+        <!-- D3 scatter plot -->
+      </figure>
+    </section>
+
+    <!-- RACE & ETHNICITY LAYER -->
+    <section id="race-filter" class="section section--race-filter" aria-labelledby="race-heading">
+      <h2 id="race-heading" class="section__heading">The Real Story</h2>
+      <p class="section__subtitle">The "average" has been hiding this.</p>
+      <div class="race-filter__controls" role="group" aria-label="Filter by race and ethnicity">
+        <!-- Filter buttons injected by interactions.js -->
+      </div>
+    </section>
+
+    <!-- PERSONA VIGNETTES -->
+    <section id="vignettes" class="section section--vignettes" aria-labelledby="vignettes-heading">
+      <h2 id="vignettes-heading" class="section__heading">Real Decisions, Real Trade-Offs</h2>
+      <div class="vignettes__grid">
+        <!-- Persona cards injected by interactions.js -->
+      </div>
+    </section>
+
+    <!-- RECOMMENDATION -->
+    <section id="recommendation" class="section section--recommendation" aria-labelledby="recommendation-heading">
+      <h2 id="recommendation-heading" class="section__heading">Your Answer</h2>
+      <div class="recommendation__result" aria-live="polite">
+        <!-- Personalized recommendation injected by interactions.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <p class="site-footer__note">Data is illustrative, not sourced from live datasets. Built to tell the story the averages hide.</p>
+  </footer>
+
+  <!-- Project Scripts -->
+  <script src="data.js"></script>
+  <script src="interactions.js"></script>
+</body>
+</html>
