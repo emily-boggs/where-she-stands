@@ -67,6 +67,68 @@ function animateCount(el, target, suffix, duration) {
 }
 
 /* =========================================
+   Hero (+) Markers — open story modals
+   ========================================= */
+
+/* Marker positions as fractions of the ORIGINAL image (2912 × 1632) */
+const MARKER_IMAGE_POS = {
+  maya:   { x: 0.22, y: 0.13 },
+  diane:  { x: 0.18, y: 0.78 },
+  carmen: { x: 0.82, y: 0.85 }
+};
+
+function positionHeroMarkers() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const markers = hero.querySelectorAll('.hero__marker');
+  if (!markers.length) return;
+
+  const IMG_W = 2912, IMG_H = 1632;
+  const imgAspect = IMG_W / IMG_H;
+  const cW = hero.offsetWidth, cH = hero.offsetHeight;
+  const cAspect = cW / cH;
+
+  let displayedW, displayedH, offsetX, offsetY;
+  if (cAspect > imgAspect) {
+    // viewport wider than image — fill width, crop top/bottom
+    displayedW = cW;
+    displayedH = (IMG_H / IMG_W) * cW;
+    offsetX = 0;
+    offsetY = (cH - displayedH) / 2;
+  } else {
+    // viewport taller than image — fill height, crop sides
+    displayedH = cH;
+    displayedW = (IMG_W / IMG_H) * cH;
+    offsetX = (cW - displayedW) / 2;
+    offsetY = 0;
+  }
+
+  const PAD = 28; // keep markers at least 28px inside the container edge
+
+  markers.forEach((m) => {
+    const pos = MARKER_IMAGE_POS[m.dataset.persona];
+    if (!pos) return;
+    const rawX = pos.x * displayedW + offsetX;
+    const rawY = pos.y * displayedH + offsetY;
+    m.style.left = Math.max(PAD, Math.min(cW - PAD, rawX)) + 'px';
+    m.style.top  = Math.max(PAD, Math.min(cH - PAD, rawY)) + 'px';
+  });
+}
+
+function initHeroMarkers() {
+  const markers = document.querySelectorAll('.hero__marker');
+  markers.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const persona = DATA.personas.find(p => p.id === btn.dataset.persona);
+      if (persona) openStoryModal(persona);
+    });
+  });
+
+  positionHeroMarkers();
+  window.addEventListener('resize', () => requestAnimationFrame(positionHeroMarkers));
+}
+
+/* =========================================
    Scorecard
    ========================================= */
 
@@ -74,22 +136,26 @@ function renderScorecard() {
   const grid = document.getElementById('scorecard-grid');
   if (!grid) return;
 
+  const icons = { pay: 'payments', leadership: 'trending_up', leave: 'child_care', growth: 'rocket_launch' };
+
   DATA.industries.forEach((ind) => {
     const card = document.createElement('article');
     card.className = 'scorecard__card';
 
-    let rows = '';
+    let blocks = '';
     DATA.dimensions.forEach((dim) => {
       const val = ind.metrics[dim];
       const formatted = DATA.formatMetric(dim, val);
-      rows += `
-        <div class="scorecard__metric">
-          <span class="scorecard__metric-label">${DATA.dimensionDescriptions[dim]}</span>
-          <span class="scorecard__metric-value">${formatted}</span>
+      blocks += `
+        <div class="scorecard__block">
+          <span class="scorecard__block-icon material-icons-outlined">${icons[dim]}</span>
+          <span class="scorecard__block-label">${DATA.dimensionLabels[dim]}</span>
+          <span class="scorecard__block-desc">${DATA.dimensionDescriptions[dim]}</span>
+          <span class="scorecard__block-value">${formatted}</span>
         </div>`;
     });
 
-    card.innerHTML = `<h3 class="scorecard__card-name">${ind.name}</h3>${rows}`;
+    card.innerHTML = `<h3 class="scorecard__card-name">${ind.name}</h3><div class="scorecard__blocks">${blocks}</div>`;
     grid.appendChild(card);
   });
 }
@@ -543,13 +609,12 @@ function copyResult() {
 
 function init() {
   initScrollObserver();
-  initBorderFrameFade();
   initHeroStat();
+  initHeroMarkers();
   renderScorecard();
   initFunnel();
   renderScatter();
   initRaceFilter();
-  renderStories();
   initFind();
 }
 

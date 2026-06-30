@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 
   <!-- D3.js -->
   <script src="https://d3js.org/d3.v7.min.js" defer></script>
@@ -23,21 +24,31 @@
 
     <!-- HERO -->
     <section id="hook" class="hero" aria-labelledby="hook-heading">
-      <!-- Art Deco pattern background -->
-      <div class="hero__pattern" aria-hidden="true"></div>
-
       <div class="hero__content">
-        <p class="hero__eyebrow">An Interactive Data Story</p>
-        <h1 id="hook-heading" class="hero__title">
-          <span class="hero__title-line">Where She</span>
-          <span class="hero__title-line hero__title-line--accent">Stands</span>
-        </h1>
-        <p class="hero__hook">
-          Women make up nearly half the workforce.<br>
-          So why do they hold less than <strong class="hero__stat" data-value="15" data-suffix="%">0%</strong> of C-suite roles in most industries?
-        </p>
-        <p class="hero__subhook">Scroll to see the data. Then decide where you stand.</p>
+        <div class="hero__glass">
+          <p class="hero__eyebrow">An Interactive Data Story</p>
+          <h1 id="hook-heading" class="hero__title">
+            <span class="hero__title-line">Where</span>
+            <span class="hero__title-line hero__title-line--accent">She Stands</span>
+          </h1>
+          <p class="hero__hook">
+            Women make up nearly half the workforce.<br>
+            So why do they hold less than <strong class="hero__stat" data-value="15" data-suffix="%">0%</strong> of C-suite roles in most industries?
+          </p>
+          <p class="hero__subhook">Click a name to read real stories of women in the workforce.</p>
+        </div>
       </div>
+
+      <!-- Floating story markers positioned over women in the photo -->
+      <button class="hero__marker" data-persona="maya" aria-label="Read Maya Chen's story">
+        <span class="hero__marker-label">Maya</span>
+      </button>
+      <button class="hero__marker" data-persona="diane" aria-label="Read Diane Okafor's story">
+        <span class="hero__marker-label">Diane</span>
+      </button>
+      <button class="hero__marker" data-persona="carmen" aria-label="Read Carmen Reyes's story">
+        <span class="hero__marker-label">Carmen</span>
+      </button>
 
       <div class="hero__scroll" aria-hidden="true">
         <span class="hero__scroll-text">Scroll to explore</span>
@@ -118,13 +129,6 @@
       <div class="race__grid" id="race-grid"></div>
     </section>
 
-    <!-- PERSONA STORIES -->
-    <section id="stories" class="section" aria-labelledby="stories-heading">
-      <h2 id="stories-heading" class="section__heading">Three Women, Three Choices</h2>
-      <p class="section__subtitle">The data becomes real when you see it through someone's life.</p>
-      <div class="stories__grid" id="stories-grid"></div>
-    </section>
-
     <!-- PERSONA ARTICLE MODAL -->
     <div id="story-modal" class="story-modal" hidden>
       <div class="story-modal__backdrop"></div>
@@ -175,10 +179,6 @@
   <footer class="site-footer" role="contentinfo">
     <p class="site-footer__note">Data is illustrative, not sourced from live datasets. Built to tell the story the averages hide.</p>
   </footer>
-
-  <!-- Decorative border frame (two-stage draw-in) -->
-  <div class="border-frame border-frame--edges" aria-hidden="true"></div>
-  <div class="border-frame border-frame--corners" aria-hidden="true"></div>
 
   <script src="data.js"></script>
   <script src="interactions.js"></script>

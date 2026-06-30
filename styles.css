@@ -92,15 +92,48 @@ img, svg { display: block; max-width: 100%; }
   text-align: center;
   padding: var(--space-lg) var(--space-md);
   overflow: hidden;
+  background-image: url('where-she-stands-background.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
-/* Subtle Art Deco repeating background pattern */
-.hero__pattern {
+/* Dark overlay for text contrast on photo */
+.hero::after {
+  content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.08;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9B8E8' stroke-width='0.5'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 60px 60px;
+  background: rgba(13, 13, 13, 0.35);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Frosted glass panel for title */
+.hero__glass {
+  background:
+    linear-gradient(rgba(13, 13, 13, 0.65), rgba(13, 13, 13, 0.65)) padding-box,
+    conic-gradient(from var(--glass-angle), #60A5FA, #A78BFA, #34D399, #60A5FA) border-box;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  width: min(540px, 88vw);
+  height: min(540px, 88vw);
+  padding: 2.5rem;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 20px rgba(96, 165, 250, 0.1),
+    0 0 40px rgba(167, 139, 250, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  animation: glassGradientSpin 4s linear infinite;
+}
+
+@keyframes glassGradientSpin {
+  to { --glass-angle: 360deg; }
 }
 
 .hero__content {
@@ -110,6 +143,8 @@ img, svg { display: block; max-width: 100%; }
   gap: var(--space-md);
   max-width: 750px;
   animation: fadeUp 1s ease-out both;
+  position: relative;
+  z-index: 2;
 }
 
 .hero__eyebrow {
@@ -118,13 +153,13 @@ img, svg { display: block; max-width: 100%; }
   font-size: 0.875rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
 .hero__title {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
   line-height: 1;
   color: var(--color-text);
 }
@@ -137,9 +172,9 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .hero__hook {
-  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+  font-size: clamp(0.875rem, 1.8vw, 1.0625rem);
   line-height: 1.5;
-  max-width: 580px;
+  max-width: 340px;
 }
 
 .hero__stat {
@@ -149,7 +184,7 @@ img, svg { display: block; max-width: 100%; }
 
 .hero__subhook {
   font-family: var(--font-condensed);
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.75);
   font-size: 1rem;
 }
 
@@ -163,17 +198,85 @@ img, svg { display: block; max-width: 100%; }
   align-items: center;
   gap: var(--space-xs);
   animation: bounce 2s ease-in-out infinite 2s;
+  z-index: 2;
+}
+
+/* Floating story markers */
+.hero__marker {
+  position: absolute;
+  z-index: 3;
+  height: 36px;
+  width: auto;
+  min-width: 64px;
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(13, 13, 13, 0.75), rgba(13, 13, 13, 0.75)) padding-box,
+    conic-gradient(from var(--glass-angle), #60A5FA, #A78BFA, #34D399, #60A5FA) border-box;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid transparent;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transform: translate(-50%, -50%);
+  animation: markerPulse 2.5s ease-in-out infinite, glassGradientSpin 4s linear infinite;
+}
+
+.hero__marker:nth-child(2) { animation-delay: 0.5s; }
+.hero__marker:nth-child(3) { animation-delay: 1s; }
+.hero__marker:nth-child(4) { animation-delay: 1.5s; }
+
+.hero__marker:hover {
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    conic-gradient(from var(--glass-angle), #60A5FA, #A78BFA, #34D399, #60A5FA) border-box;
+  color: var(--color-bg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hero__marker:hover .hero__marker-label {
+  color: var(--color-bg);
+}
+
+.hero__marker:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.hero__marker-label {
+  font-family: var(--font-condensed);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+  line-height: 1;
+}
+
+@keyframes markerPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
 }
 
 .hero__scroll-text {
   font-family: var(--font-condensed);
   font-size: 0.75rem;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-.hero__scroll svg { color: var(--color-primary); }
+.hero__scroll svg {
+  color: #fff;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -247,8 +350,9 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .scorecard__card:hover {
+  border-color: var(--color-secondary);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(201, 184, 232, 0.12);
+  box-shadow: 0 8px 24px rgba(123, 94, 167, 0.15);
 }
 
 /* =========================================
@@ -263,9 +367,23 @@ img, svg { display: block; max-width: 100%; }
 
 .scorecard__card {
   background: var(--color-surface);
-  border: 1px solid var(--color-surface-alt);
-  border-radius: 4px;
+  border: 2px solid var(--color-surface-alt);
+  border-radius: 8px;
   padding: var(--space-md);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+/* Gradient accent line at top */
+.scorecard__card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-secondary);
 }
 
 .scorecard__card-name {
@@ -275,29 +393,55 @@ img, svg { display: block; max-width: 100%; }
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
-.scorecard__metric {
+.scorecard__blocks {
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--color-surface-alt);
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
 }
 
-.scorecard__metric:last-child { border-bottom: none; }
-
-.scorecard__metric-label {
-  font-size: 0.8125rem;
-  color: var(--color-muted);
+.scorecard__block {
+  text-align: center;
+  padding: var(--space-sm) var(--space-xs);
+  background: var(--color-surface-alt);
+  border-radius: 6px;
 }
 
-.scorecard__metric-value {
+.scorecard__block-icon {
+  display: block;
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+  color: var(--color-secondary);
+}
+
+.scorecard__block-value {
+  display: block;
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-primary);
+  line-height: 1.1;
+}
+
+.scorecard__block-label {
+  display: block;
+  font-family: var(--font-condensed);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
+.scorecard__block-desc {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  line-height: 1.3;
+  margin-top: 4px;
 }
 
 .scorecard__metric-unit {
@@ -903,6 +1047,20 @@ img, svg { display: block; max-width: 100%; }
   .race__summary {
     grid-template-columns: 1fr;
   }
+
+  .hero__glass {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .hero__marker {
+    height: 32px;
+    min-width: 56px;
+    padding: 0 0.75rem;
+  }
+
+  .hero__marker-label {
+    font-size: 0.75rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -919,6 +1077,12 @@ img, svg { display: block; max-width: 100%; }
    ========================================= */
 
 @property --draw-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --glass-angle {
   syntax: '<angle>';
   initial-value: 0deg;
   inherits: false;
