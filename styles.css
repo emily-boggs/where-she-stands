@@ -935,6 +935,8 @@ img, svg { display: block; max-width: 100%; }
   border-image-repeat: stretch;
   border-style: solid;
   border-width: 80px;
+  border-color: transparent;
+  background: transparent;
   opacity: 0.6;
   filter: hue-rotate(240deg) saturate(0.6) brightness(1.4);
   transition: opacity 0.4s ease;
@@ -950,8 +952,8 @@ img, svg { display: block; max-width: 100%; }
     80px calc(100% - 80px), 0% calc(100% - 80px),
     0% 80px, 80px 80px
   );
-  -webkit-mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--draw-angle), transparent 0);
-  mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--draw-angle), transparent 0);
+  -webkit-mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--draw-angle, 360deg), transparent 0);
+  mask-image: conic-gradient(from -90deg at 50% 50%, #000 var(--draw-angle, 360deg), transparent 0);
   animation: drawBorderIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
