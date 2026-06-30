@@ -136,27 +136,69 @@ function renderScorecard() {
   const grid = document.getElementById('scorecard-grid');
   if (!grid) return;
 
-  const icons = { pay: 'payments', leadership: 'trending_up', leave: 'child_care', growth: 'rocket_launch' };
+  const dimIcons = { pay: 'payments', leadership: 'trending_up', leave: 'child_care', growth: 'rocket_launch' };
+
+  const industryIcons = {
+    technology: 'computer',
+    'financial-services': 'account_balance',
+    healthcare: 'local_hospital',
+    retail: 'shopping_cart',
+    'public-sector': 'public',
+    manufacturing: 'precision_manufacturing'
+  };
+
+  const industryGradients = {
+    technology: 'linear-gradient(135deg, #1e3a5f, #2c5282)',
+    'financial-services': 'linear-gradient(135deg, #1a3a2a, #276749)',
+    healthcare: 'linear-gradient(135deg, #1a3a4a, #2a6478)',
+    retail: 'linear-gradient(135deg, #5a2d1a, #8b4726)',
+    'public-sector': 'linear-gradient(135deg, #2d1a4a, #4a2d6f)',
+    manufacturing: 'linear-gradient(135deg, #2d3436, #4a5568)'
+  };
+
+  const industryFacts = {
+    technology: 'Women hold 47% of entry-level tech roles but only 14% of C-suite positions \u2014 a 33-point drop through the pipeline.',
+    'financial-services': 'Black women in finance earn $0.62 for every dollar white men earn \u2014 the widest pay gap of any industry studied.',
+    healthcare: 'Healthcare leads all industries in women\'s leadership at 26% of C-suite roles \u2014 nearly double the tech industry.',
+    retail: 'Retail offers just 6 weeks paid leave \u2014 the second lowest \u2014 despite employing one of the highest shares of women.',
+    'public-sector': 'Government pays most fairly at $0.92 per dollar, but promotes the slowest \u2014 8.5 years to first management role.',
+    manufacturing: 'Only 8% of manufacturing C-suite roles are held by women \u2014 the lowest of any industry, with 9 years to first promotion.'
+  };
 
   DATA.industries.forEach((ind) => {
-    const card = document.createElement('article');
-    card.className = 'scorecard__card';
-
     let blocks = '';
     DATA.dimensions.forEach((dim) => {
       const val = ind.metrics[dim];
       const formatted = DATA.formatMetric(dim, val);
       blocks += `
         <div class="scorecard__block">
-          <span class="scorecard__block-icon material-icons-outlined">${icons[dim]}</span>
+          <span class="scorecard__block-icon material-icons-outlined">${dimIcons[dim]}</span>
           <span class="scorecard__block-label">${DATA.dimensionLabels[dim]}</span>
           <span class="scorecard__block-desc">${DATA.dimensionDescriptions[dim]}</span>
           <span class="scorecard__block-value">${formatted}</span>
         </div>`;
     });
 
-    card.innerHTML = `<h3 class="scorecard__card-name">${ind.name}</h3><div class="scorecard__blocks">${blocks}</div>`;
-    grid.appendChild(card);
+    const flip = document.createElement('div');
+    flip.className = 'scorecard__flip';
+    flip.innerHTML = `
+      <div class="scorecard__flip-inner">
+        <article class="scorecard__card scorecard__card--front">
+          <div class="scorecard__header" style="background:${industryGradients[ind.id]}">
+            <h3 class="scorecard__card-name">${ind.name}</h3>
+          </div>
+          <div class="scorecard__blocks">${blocks}</div>
+        </article>
+        <article class="scorecard__card scorecard__card--back">
+          <span class="material-icons-outlined scorecard__back-icon">lightbulb</span>
+          <h3 class="scorecard__back-title">Quick Fact</h3>
+          <p class="scorecard__back-text">${industryFacts[ind.id]}</p>
+          <span class="scorecard__back-cta">Tap to flip back</span>
+        </article>
+      </div>
+    `;
+    flip.addEventListener('click', () => flip.classList.toggle('scorecard__flip--active'));
+    grid.appendChild(flip);
   });
 }
 
@@ -198,34 +240,92 @@ function renderFunnel() {
   const values = DATA.pipeline.byIndustry[funnelIndustry];
   const ind = DATA.industries.find((i) => i.id === funnelIndustry);
 
-  const width = 650, height = levels.length * 56 + 20, barMax = 450, labelW = 120;
+  const width = 650, height = 480;
+  const barW = 52, barR = 26;
+  const chartTop = 24, chartBottom = height - 56;
+  const chartH = chartBottom - chartTop;
+  const leftPad = 52;
+  const usableW = width - leftPad - 20;
+  const barSpacing = usableW / levels.length;
 
   const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${width} ${height}`);
 
+  /* gradient definitions */
+  const defs = svg.append('defs');
+  const grad = defs.append('linearGradient')
+    .attr('id', 'funnel-grad').attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
+  grad.append('stop').attr('offset', '0%').attr('stop-color', '#C9B8E8');
+  grad.append('stop').attr('offset', '100%').attr('stop-color', '#7B5EA7');
+
+  const dropGrad = defs.append('linearGradient')
+    .attr('id', 'funnel-drop-grad').attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
+  dropGrad.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(255,255,255,0.65)');
+  dropGrad.append('stop').attr('offset', '100%').attr('stop-color', '#ffffff');
+
+  /* steepest drop */
   let maxDrop = 0, dropIdx = 0;
   for (let i = 1; i < values.length; i++) {
     const d = values[i - 1] - values[i];
     if (d > maxDrop) { maxDrop = d; dropIdx = i; }
   }
 
+  /* horizontal grid lines */
+  [0, 25, 50, 75].forEach(v => {
+    const y = chartBottom - (v / 100) * chartH;
+    svg.append('line')
+      .attr('x1', leftPad - 4).attr('x2', width - 10)
+      .attr('y1', y).attr('y2', y)
+      .attr('stroke', 'rgba(255,255,255,0.06)').attr('stroke-width', 1);
+    svg.append('text')
+      .attr('x', leftPad - 10).attr('y', y + 4)
+      .attr('text-anchor', 'end')
+      .attr('fill', 'rgba(255,255,255,0.35)').attr('font-size', '14')
+      .attr('font-family', 'Barlow Condensed, sans-serif')
+      .text(v + '%');
+  });
+
+  /* bars */
   levels.forEach((lvl, i) => {
-    const y = i * 56 + 10;
-    const bw = (values[i] / 100) * barMax;
+    const cx = leftPad + barSpacing * i + barSpacing / 2;
+    const barH = (values[i] / 100) * chartH;
     const isDropoff = i === dropIdx;
 
-    svg.append('text').attr('x', labelW - 8).attr('y', y + 18)
-      .attr('text-anchor', 'end').attr('fill', '#9E9E9E').attr('font-size', '12')
-      .attr('font-family', 'Barlow Condensed, sans-serif').text(lvl);
+    /* gray background track */
+    svg.append('rect')
+      .attr('x', cx - barW / 2).attr('y', chartTop)
+      .attr('width', barW).attr('height', chartH)
+      .attr('rx', barR).attr('fill', 'rgba(255,255,255,0.06)');
 
-    svg.append('rect').attr('x', labelW).attr('y', y + 2).attr('width', 0).attr('height', 24)
-      .attr('rx', 3).attr('fill', isDropoff ? '#C47A8A' : '#7B5EA7')
-      .transition().duration(500).delay(i * 70).attr('width', bw);
+    /* colored bar — animates up from bottom */
+    svg.append('rect')
+      .attr('x', cx - barW / 2)
+      .attr('y', chartBottom)
+      .attr('width', barW).attr('height', 0)
+      .attr('rx', barR)
+      .attr('fill', isDropoff ? 'url(#funnel-drop-grad)' : 'url(#funnel-grad)')
+      .transition().duration(600).delay(i * 80)
+      .attr('y', chartBottom - barH)
+      .attr('height', barH);
 
-    svg.append('text').attr('x', labelW + bw + 8).attr('y', y + 19)
-      .attr('fill', '#F0EDE8').attr('font-size', '13').attr('font-weight', '600')
+    /* percentage label above bar */
+    svg.append('text')
+      .attr('x', cx).attr('y', chartBottom - barH - 10)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#F0EDE8').attr('font-size', '15').attr('font-weight', '600')
       .attr('font-family', 'Barlow Condensed, sans-serif')
-      .attr('opacity', 0).text(values[i] + '%')
-      .transition().duration(300).delay(i * 70 + 300).attr('opacity', 1);
+      .attr('opacity', 0)
+      .text(values[i] + '%')
+      .transition().duration(300).delay(i * 80 + 400)
+      .attr('opacity', 1);
+
+    /* level label below */
+    const shortLabel = lvl.length > 8 ? lvl.replace('Level', 'Lvl').replace('Manager', 'Mgr') : lvl;
+    svg.append('text')
+      .attr('x', cx).attr('y', chartBottom + 26)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'rgba(255,255,255,0.55)').attr('font-size', '14')
+      .attr('font-family', 'Barlow Condensed, sans-serif')
+      .text(shortLabel);
   });
 
   if (callout) {
@@ -255,33 +355,43 @@ function renderScatter() {
 
   // Axes
   g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x).ticks(5).tickFormat(d => `$0.${d}`))
-    .selectAll('text').attr('fill', '#9E9E9E');
+    .selectAll('text').attr('fill', '#9E9E9E').attr('font-size', '13');
   g.append('g').call(d3.axisLeft(y).ticks(5).tickFormat(d => d + ' yrs'))
-    .selectAll('text').attr('fill', '#9E9E9E');
+    .selectAll('text').attr('fill', '#9E9E9E').attr('font-size', '13');
   g.selectAll('.domain, line').attr('stroke', '#333');
 
   // Axis labels
   svg.append('text').attr('x', width / 2).attr('y', height - 4)
-    .attr('text-anchor', 'middle').attr('fill', '#9E9E9E').attr('font-size', '12')
+    .attr('text-anchor', 'middle').attr('fill', '#9E9E9E').attr('font-size', '15')
     .attr('font-family', 'Barlow Condensed').text('Pay Equity (cents per $1)');
   svg.append('text').attr('x', 14).attr('y', height / 2)
-    .attr('text-anchor', 'middle').attr('fill', '#9E9E9E').attr('font-size', '12')
+    .attr('text-anchor', 'middle').attr('fill', '#9E9E9E').attr('font-size', '15')
     .attr('font-family', 'Barlow Condensed')
     .attr('transform', `rotate(-90,14,${height / 2})`).text('Years to First Promotion (fewer = better)');
+
+  const industryDotColors = {
+    technology: '#5B93D3',
+    'financial-services': '#48BB78',
+    healthcare: '#4FD1C5',
+    retail: '#ED8936',
+    'public-sector': '#9F7AEA',
+    manufacturing: '#A0AEC0'
+  };
 
   const tooltip = d3.select(el).append('div').attr('class', 'scatter__tooltip');
 
   DATA.industries.forEach((ind) => {
     const cx = x(ind.metrics.pay);
     const cy = y(ind.metrics.growth);
+    const dotColor = industryDotColors[ind.id] || '#C9B8E8';
 
     g.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 0)
-      .attr('fill', '#C9B8E8').attr('stroke', '#F0EDE8').attr('stroke-width', 2)
+      .attr('fill', dotColor).attr('stroke', dotColor).attr('stroke-width', 2).attr('stroke-opacity', 0.4)
       .style('cursor', 'pointer')
       .on('mouseenter', function(event) {
         d3.select(this).transition().duration(100).attr('r', 11);
         tooltip.style('opacity', 1)
-          .html(`<strong>${ind.name}</strong><br>Pay: $0.${ind.metrics.pay} | Growth: ${ind.metrics.growth} yrs`)
+          .html(`<strong>${ind.name}</strong><br>Pay Equity: $0.${ind.metrics.pay} per $1<br>Years to First Promo: ${ind.metrics.growth} yrs`)
           .style('left', (event.offsetX + 12) + 'px').style('top', (event.offsetY - 10) + 'px');
       })
       .on('mouseleave', function() {
@@ -290,8 +400,8 @@ function renderScatter() {
       })
       .transition().duration(400).delay(150).attr('r', 7);
 
-    g.append('text').attr('x', cx).attr('y', cy - 12)
-      .attr('text-anchor', 'middle').attr('fill', '#F0EDE8').attr('font-size', '10')
+    g.append('text').attr('x', cx).attr('y', cy - 18)
+      .attr('text-anchor', 'middle').attr('fill', '#F0EDE8').attr('font-size', '11')
       .attr('font-family', 'DM Sans').attr('opacity', 0)
       .text(ind.name.length > 12 ? ind.name.split(' ')[0] : ind.name)
       .transition().duration(300).delay(400).attr('opacity', 0.7);
