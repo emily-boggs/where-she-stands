@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Where She Stands</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23A78BFA'><path d='M17.5 9.5C17.5 6.46 15.04 4 12 4S6.5 6.46 6.5 9.5c0 2.7 1.94 4.93 4.5 5.4V17H9v2h2v2h2v-2h2v-2h-2v-2.1c2.56-.47 4.5-2.7 4.5-5.4zm-9 0C8.5 7.57 10.07 6 12 6s3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5z'/></svg>" type="image/svg+xml">
   <meta name="description" content="An interactive data story comparing gender equity across 6 industries — pay, leadership, family leave, and career growth — layered by race and ethnicity.">
 
   <!-- Fonts -->
@@ -109,21 +110,7 @@
     <!-- RACE & ETHNICITY -->
     <section id="race" class="section" aria-labelledby="race-heading">
       <h2 id="race-heading" class="section__heading">The Real Story</h2>
-      <p class="section__subtitle">The averages above hide a deeper inequity. Filter by identity to see the real gaps.</p>
-      <div class="race__summary" id="race-summary">
-        <div class="race__summary-stat">
-          <span class="race__summary-number">$0.58</span>
-          <span class="race__summary-label">What Hispanic women earn per $1 a white man earns in Manufacturing</span>
-        </div>
-        <div class="race__summary-stat">
-          <span class="race__summary-number">5%</span>
-          <span class="race__summary-label">Black women in C-suite roles in Financial Services</span>
-        </div>
-        <div class="race__summary-stat">
-          <span class="race__summary-number">12 yrs</span>
-          <span class="race__summary-label">Avg time to first promotion for Hispanic women in Manufacturing</span>
-        </div>
-      </div>
+      <p class="section__subtitle">The averages above hide a deeper inequity. Filter by identity to see the real&nbsp;gaps.</p>
       <div class="race__controls" id="race-controls"></div>
       <p class="race__callout" id="race-callout"></p>
       <div class="race__grid" id="race-grid"></div>
@@ -141,7 +128,7 @@
     <!-- FIND WHERE YOU STAND (quiz at end) -->
     <section id="find" class="section section--find" aria-labelledby="find-heading">
       <div class="find__border">
-      <h2 id="find-heading" class="section__heading">Now — Find Where You Stand</h2>
+      <h2 id="find-heading" class="section__heading">Find Where You Stand</h2>
       <p class="section__subtitle">You've seen the data. Tell us what matters to you.</p>
 
       <div class="find__form" id="find-form">
@@ -177,7 +164,18 @@
   </main>
 
   <footer class="site-footer" role="contentinfo">
-    <p class="site-footer__note">Data is illustrative, not sourced from live datasets. Built to tell the story the averages hide.</p>
+    <div class="site-footer__sources">
+      <h3>Sources &amp; Methodology</h3>
+      <p>Figures are illustrative estimates informed by patterns from the following public reports:</p>
+      <ul>
+        <li>U.S. Census Bureau, Current Population Survey — earnings by race and gender</li>
+        <li>McKinsey &amp; LeanIn.org, <em>Women in the Workplace</em> (2023) — leadership pipeline data</li>
+        <li>Bureau of Labor Statistics — industry-level compensation and leave benchmarks</li>
+        <li>Catalyst.org — representation of women of color in corporate leadership</li>
+        <li>National Partnership for Women &amp; Families — paid leave policy data</li>
+      </ul>
+      <p>No live datasets were used. All values are approximations meant to reflect documented trends, not exact statistics.</p>
+    </div>
   </footer>
 
   <script src="data.js"></script>

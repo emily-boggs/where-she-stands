@@ -489,8 +489,12 @@ function renderRaceGrid() {
         const gap = d === 'growth' ? mod[d] - 1 : 1 - mod[d];
         return gap > (w.gap || 0) ? { dim: d, gap } : w;
       }, {});
-      const pct = Math.round(worst.gap * 100);
-      callout.textContent = `For ${label}, the largest gap is in ${DATA.dimensionLabels[worst.dim]} — ${pct}% worse than the average.`;
+      if (worst.dim) {
+        const pct = Math.round(worst.gap * 100);
+        callout.textContent = `Below you'll see adjusted metrics for ${label} across each industry. The numbers show how pay, leadership, and career growth differ from the overall average for women. Their biggest disadvantage is in ${DATA.dimensionLabels[worst.dim]}, where outcomes are ${pct}% worse.`;
+      } else {
+        callout.textContent = `Below you'll see adjusted metrics for ${label} across each industry. This group meets or exceeds the average for women in every category — but the overall average still reflects a gap compared to men.`;
+      }
     }
   }
 }
@@ -575,10 +579,10 @@ function initFind() {
 
   // Priorities
   DATA.dimensions.forEach((dim) => {
-    const icons = { pay: '💰', leadership: '📈', leave: '👶', growth: '🚀' };
+    const icons = { pay: 'payments', leadership: 'trending_up', leave: 'child_care', growth: 'rocket_launch' };
     const btn = document.createElement('button');
     btn.className = 'toggle-btn';
-    btn.innerHTML = `${icons[dim]} ${DATA.dimensionLabels[dim]}`;
+    btn.innerHTML = `<span class="material-icons-outlined" style="font-size:1em;vertical-align:middle;margin-right:4px">${icons[dim]}</span>${DATA.dimensionLabels[dim]}`;
     btn.dataset.value = dim;
     btn.addEventListener('click', () => {
       const idx = findAnswers.priorities.indexOf(dim);
@@ -682,7 +686,6 @@ function showResults() {
 
   actions.innerHTML = `
     <a href="${links.linkedin}" target="_blank" rel="noopener" class="results__link results__link--linkedin">Search on LinkedIn</a>
-    <a href="${links.indeed}" target="_blank" rel="noopener" class="results__link results__link--indeed">${top.id === 'public-sector' ? 'Browse USAJobs' : 'Search on Indeed'}</a>
     <button class="results__copy" onclick="copyResult()">Copy My Result</button>
   `;
 
